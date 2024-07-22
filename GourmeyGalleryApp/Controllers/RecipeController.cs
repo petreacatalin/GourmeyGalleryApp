@@ -35,15 +35,15 @@ public class RecipeController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<RecipeDto>> GetRecipe(int id)
+    public async Task<IActionResult> GetRecipe(int id)
     {
         var recipe = await _recipeService.GetRecipeByIdAsync(id);
         if (recipe == null)
         {
             return NotFound();
         }
-        var recipeDto = _mapper.Map<RecipeDto>(recipe);
-        return Ok(recipeDto);
+        var recipeMapped = _mapper.Map<RecipeDto>(recipe);
+        return Ok(recipeMapped);
     }
 
     [HttpPost]
@@ -54,13 +54,13 @@ public class RecipeController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        // Map the DTO to the Recipe entity
-        var recipe = _mapper.Map<Recipe>(recipeDto);
-            var userId = User.FindFirstValue("nameId");
-
         try
         {
+            // Map the DTO to the Recipe entity
+            var recipe = _mapper.Map<Recipe>(recipeDto);
+
             // Extract user ID from the token
+            var userId = User.FindFirstValue("nameId");
 
             // Check if user ID is null or empty
             if (string.IsNullOrEmpty(userId))
@@ -71,24 +71,41 @@ public class RecipeController : ControllerBase
             // Set the ApplicationUserId in the Recipe entity
             recipe.ApplicationUserId = userId;
 
+            // Ensure Instructions and IngredientsTotal entities are created if not null
+            if (recipeDto.Instructions != null)
+            {
+                recipe.Instructions = new Instructions
+                {
+                    Steps = recipeDto.Instructions.Steps.Select(stepDto => _mapper.Map<Step>(stepDto)).ToList()
+                };
+            }
+            if (recipeDto.IngredientsTotal != null)
+            {
+                recipe.IngredientsTotal = new IngredientsTotal
+                {
+                    Ingredients = recipeDto.IngredientsTotal.Ingredients.Select(ingredientDto => _mapper.Map<Ingredient>(ingredientDto)).ToList()
+                };
+            }
+
             // Add the recipe using the RecipeService
             await _recipeService.AddRecipeAsync(recipe);
 
+            // Fetch the updated recipe to get the correct IDs
+            var savedRecipe = await _recipeService.GetRecipeByIdAsync(recipe.Id);
+
             // Map the result back to a DTO
-            var recipeDtoResult = _mapper.Map<RecipeDto>(recipe);
+            var recipeDtoResult = _mapper.Map<RecipeDto>(savedRecipe);
 
             // Return a CreatedAtAction response
             return CreatedAtAction(nameof(GetRecipe),
-            new {
-                id = recipe.Id , 
-                applicationUserId= recipe.ApplicationUserId}, recipeDtoResult);
-                }
+                new { id = savedRecipe.Id, applicationUserId = savedRecipe.ApplicationUserId }, recipeDtoResult);
+        }
         catch (Exception ex)
         {
-            // Return a 500 status code with the error message
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode(500, "Internal server error.");
         }
     }
+
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeDto recipeDto)

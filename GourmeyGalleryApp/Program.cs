@@ -6,6 +6,7 @@ using GourmetGallery.Infrastructure.Repositories;
 using GourmeyGalleryApp.Infrastructure;
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
+using GourmeyGalleryApp.Repositories.RecipeRepository;
 using GourmeyGalleryApp.Repositories.UserRepo;
 using GourmeyGalleryApp.Services.RecipeService;
 using GourmeyGalleryApp.Services.UserService.UserService;
@@ -39,6 +40,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Register specific repositories and services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));

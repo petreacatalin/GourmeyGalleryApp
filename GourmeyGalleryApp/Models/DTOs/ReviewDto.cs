@@ -1,6 +1,6 @@
 ﻿namespace GourmeyGalleryApp.DTOs
 {
-    public class RatingDto
+    public class ReviewDto
     {
         public int Id { get; set; }
         public int Value { get; set; }

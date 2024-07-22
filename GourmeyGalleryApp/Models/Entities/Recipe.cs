@@ -1,5 +1,6 @@
 ﻿using static GourmeyGalleryApp.Utils.Enums;
 using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GourmeyGalleryApp.Models.Entities
 {
@@ -7,10 +8,10 @@ namespace GourmeyGalleryApp.Models.Entities
     public class Recipe
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
-        public string Ingredients { get; set; }
-        public string Instructions { get; set; }
+        public int IngredientsTotalId { get; set; }
+        public int InstructionsId { get; set; }
         public string? Tags { get; set; }
         public string? ImageUrl { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -32,7 +33,9 @@ namespace GourmeyGalleryApp.Models.Entities
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Rating> Ratings { get; set; }
+        public ICollection<Review> Reviews { get; set; }
+        public IngredientsTotal IngredientsTotal { get; set; } // Update for IngredientsTotal
+        public Instructions Instructions { get; set; } // Update for Instructions
     }
-
+   
 }

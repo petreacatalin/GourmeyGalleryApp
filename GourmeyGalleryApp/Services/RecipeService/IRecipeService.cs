@@ -1,4 +1,5 @@
-﻿using GourmeyGalleryApp.Models.Entities;
+﻿using GourmeyGalleryApp.DTOs;
+using GourmeyGalleryApp.Models.Entities;
 
 namespace GourmeyGalleryApp.Services.RecipeService
 {

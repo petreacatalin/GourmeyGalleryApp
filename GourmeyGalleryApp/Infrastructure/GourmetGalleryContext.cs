@@ -13,10 +13,12 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
     public DbSet<ApplicationUser> Users { get; set; }
     public DbSet<Recipe> Recipes { get; set; }
     public DbSet<Comment> Comments { get; set; }
-    public DbSet<Rating> Ratings { get; set; }
+    public DbSet<Review> Reviews { get; set; }
     public DbSet<MealPlan> MealPlans { get; set; }
     public DbSet<Friend> Friends { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<IngredientsTotal> IngredientsTotal { get; set; }
+    public DbSet<Instructions> Instructions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,15 +58,15 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Cascade); // This can remain Cascade
 
         // Configure Rating entity
-        modelBuilder.Entity<Rating>()
+        modelBuilder.Entity<Review>()
             .HasOne(r => r.User)
-            .WithMany(u => u.Ratings)
+            .WithMany(u => u.Reviews)
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict); // Use Restrict or NoAction
 
-        modelBuilder.Entity<Rating>()
+        modelBuilder.Entity<Review>()
             .HasOne(r => r.Recipe)
-            .WithMany(r => r.Ratings)
+            .WithMany(r => r.Reviews)
             .HasForeignKey(r => r.RecipeId)
             .OnDelete(DeleteBehavior.Cascade); // This can remain Cascade
 
@@ -87,9 +89,38 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .WithMany(u => u.MessagesReceived)
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict); // Use Restrict or NoAction
+                                                // Configure Recipe entity
+                                                // Configure Recipe to Ingredient relationship
+                                                // Configure Recipe to IngredientsTotal relationship
+        modelBuilder.Entity<Recipe>()
+            .HasOne(r => r.IngredientsTotal)
+            .WithOne(it => it.Recipe)
+            .HasForeignKey<IngredientsTotal>(it => it.RecipeId)
+            .OnDelete(DeleteBehavior.Cascade); // Configure delete behavior
+
+        // Configure Recipe to Instructions relationship
+        modelBuilder.Entity<Recipe>()
+            .HasOne(r => r.Instructions)
+            .WithOne(i => i.Recipe)
+            .HasForeignKey<Instructions>(i => i.RecipeId)
+            .OnDelete(DeleteBehavior.Cascade); // Configure delete behavior
+
+        // Configure IngredientsTotal to Ingredient relationship
+        modelBuilder.Entity<IngredientsTotal>()
+            .HasMany(it => it.Ingredients)
+            .WithOne() // Ingredients don't need navigation property back to IngredientsTotal
+            .HasForeignKey(i => i.IngredientsTotalId)
+            .OnDelete(DeleteBehavior.Cascade); // Configure delete behavior
+
+        // Configure Instructions to Step relationship
+        modelBuilder.Entity<Instructions>()
+            .HasMany(i => i.Steps)
+            .WithOne() // Steps don't need navigation property back to Instructions
+            .HasForeignKey(s => s.InstructionsId)
+            .OnDelete(DeleteBehavior.Cascade); // Configure delete behavior
+
+
     }
-
-
 
 }
 

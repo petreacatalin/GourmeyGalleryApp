@@ -1,5 +1,8 @@
-﻿using GourmeyGalleryApp.Interfaces;
+﻿using AutoMapper;
+using GourmeyGalleryApp.DTOs;
+using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
+using GourmeyGalleryApp.Repositories.RecipeRepository;
 
 
 namespace GourmeyGalleryApp.Services.RecipeService
@@ -7,26 +10,49 @@ namespace GourmeyGalleryApp.Services.RecipeService
     public class RecipeService : IRecipeService
     {
         private readonly IRepository<Recipe> _recipeRepository;
-
-        public RecipeService(IRepository<Recipe> recipeRepository)
+        private readonly IRecipeRepository _recipeCustomRepository;
+        private readonly IMapper _mapper;
+        public RecipeService(IRepository<Recipe> recipeRepository, IRecipeRepository recipeCustomRepository, IMapper mapper)
         {
             _recipeRepository = recipeRepository;
+            _recipeCustomRepository = recipeCustomRepository;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Recipe>> GetAllRecipesAsync()
         {
-            return await _recipeRepository.GetAllAsync();
+            var recipes = await _recipeCustomRepository.GetAllRecipesWithDetailsAsync();
+            return _mapper.Map<List<Recipe>>(recipes);
         }
 
         public async Task<Recipe> GetRecipeByIdAsync(int id)
         {
-            return await _recipeRepository.GetByIdAsync(id);
+            var recipe = await _recipeCustomRepository.GetRecipeByIdAsync(id);
+            if (recipe == null)
+            {
+                return null;
+            }
+            return _mapper.Map<Recipe>(recipe);
         }
 
         public async Task AddRecipeAsync(Recipe recipe)
         {
-            await _recipeRepository.AddAsync(recipe);
-            await _recipeRepository.SaveChangesAsync();  // Ensure SaveChanges is implemented in the Repository
+            // Add the recipe
+            await _recipeCustomRepository.AddRecipeAsync(recipe);
+            await _recipeCustomRepository.SaveChangesAsync();  // Ensure SaveChanges is implemented in the Repository
+
+            // Set the InstructionsId and IngredientsTotalId
+            if (recipe.Instructions != null)
+            {
+                recipe.Instructions.RecipeId = recipe.Id;
+                recipe.InstructionsId = recipe.Instructions.Id;
+            }
+            if (recipe.IngredientsTotal != null)
+            {
+                recipe.IngredientsTotal.RecipeId = recipe.Id;
+                recipe.IngredientsTotalId = recipe.IngredientsTotal.Id;
+            }
+            await _recipeCustomRepository.SaveChangesAsync();
         }
 
         public async Task UpdateRecipeAsync(Recipe recipe)

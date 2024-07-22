@@ -9,8 +9,13 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         CreateMap<ApplicationUser, ApplicationUserDto>().ReverseMap();
-        CreateMap<Recipe, RecipeDto>().ReverseMap();
+        CreateMap<Recipe, RecipeDto>().ReverseMap();       
         CreateMap<Comment, CommentDto>().ReverseMap();
-        CreateMap<Rating, RatingDto>().ReverseMap();
+        CreateMap<Review, ReviewDto>().ReverseMap();
+        CreateMap<IngredientsTotal, IngredientsTotalDto>().ReverseMap();
+        CreateMap<Instructions, InstructionsDto>().ReverseMap();
+        CreateMap<Step, StepDto>().ReverseMap();
+        CreateMap<Ingredient, IngredientDto>().ReverseMap();
+
     }
 }
