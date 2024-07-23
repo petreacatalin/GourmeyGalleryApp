@@ -70,7 +70,7 @@ public class CommentsController : ControllerBase
     }
 
     [HttpGet("recipe/{recipeId}")]
-    public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsForRecipe(int recipeId)
+    public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForRecipe(int recipeId)
     {
         var comments = await _commentRepository.GetWhereAsync(
             c => c.RecipeId == recipeId,
