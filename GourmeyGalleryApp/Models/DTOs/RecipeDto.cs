@@ -31,7 +31,7 @@ namespace GourmeyGalleryApp.DTOs
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public OtherCategories? OtherCategories { get; set; }
         public ICollection<CommentDto> Comments { get; set; } = new List<CommentDto>();
-        public ICollection<ReviewDto> Reviews { get; set; } = new List<ReviewDto>();
+       // public ICollection<ReviewDto> Reviews { get; set; } = new List<ReviewDto>();
         public IngredientsTotalDto IngredientsTotal { get; set; } // Updated DTO
         public InstructionsDto Instructions { get; set; } // Updated DTO
     }

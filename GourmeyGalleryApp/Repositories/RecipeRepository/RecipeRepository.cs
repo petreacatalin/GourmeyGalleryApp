@@ -31,7 +31,7 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                 .Include(r => r.Instructions)
                     .ThenInclude(i => i.Steps)
                 .Include(r => r.Comments)
-                .Include(r => r.Reviews)
+                //.Include(r => r.Reviews)
                 .ToListAsync();
         }
 
@@ -43,7 +43,7 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
            .Include(r => r.Instructions)
                .ThenInclude(i => i.Steps)
            .Include(r => r.Comments)
-           .Include(r => r.Reviews)
+           //.Include(r => r.Reviews)
             .FirstOrDefaultAsync(r => r.Id == id);
         }
 

@@ -64,11 +64,11 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict); // Use Restrict or NoAction
 
-        modelBuilder.Entity<Review>()
-            .HasOne(r => r.Recipe)
-            .WithMany(r => r.Reviews)
-            .HasForeignKey(r => r.RecipeId)
-            .OnDelete(DeleteBehavior.Cascade); // This can remain Cascade
+        //modelBuilder.Entity<Review>()
+        //    .HasOne(r => r.Recipe)
+        //    .WithMany(r => r.Reviews)
+        //    .HasForeignKey(r => r.RecipeId)
+        //    .OnDelete(DeleteBehavior.Cascade); // This can remain Cascade
 
         // Configure MealPlan entity
         modelBuilder.Entity<MealPlan>()

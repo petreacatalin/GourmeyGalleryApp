@@ -44,9 +44,11 @@ public class AccountController : ControllerBase
 
         var user = new ApplicationUser
         {
+            FirstName = registerDto.FirstName, 
+            LastName = registerDto.LastName,
             UserName = registerDto.Email,
             Email = registerDto.Email,
-            ProfilePictureUrl = registerDto.ProfilePictureUrl ?? "DefaultProfilePictureUrl"
+            ProfilePictureUrl = registerDto.ProfilePictureUrl ?? "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png"
         };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -92,6 +94,8 @@ public class AccountController : ControllerBase
         List<Claim> claims =
             [
                 new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+                new(JwtRegisteredClaimNames.FamilyName, user.FirstName ?? ""),
+                new(JwtRegisteredClaimNames.GivenName , user.LastName ?? ""),
                 new(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
                 new(JwtRegisteredClaimNames.NameId, user.Id ?? ""),
                 new(JwtRegisteredClaimNames.Aud, 

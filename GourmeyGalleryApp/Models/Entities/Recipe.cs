@@ -33,7 +33,7 @@ namespace GourmeyGalleryApp.Models.Entities
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        //public ICollection<Review> Reviews { get; set; }
         public IngredientsTotal IngredientsTotal { get; set; } // Update for IngredientsTotal
         public Instructions Instructions { get; set; } // Update for Instructions
     }

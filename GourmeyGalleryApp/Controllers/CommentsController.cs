@@ -1,9 +1,7 @@
-﻿using GourmetGallery.Infrastructure;
-using GourmeyGalleryApp.DTOs;
+﻿using GourmeyGalleryApp.DTOs;
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +12,11 @@ using System.Threading.Tasks;
 [Route("api/[controller]")]
 public class CommentsController : ControllerBase
 {
-    private readonly IRepository<Comment> _commentRepository;
-    private readonly IRepository<ApplicationUser> _userRepository;
+    private readonly ICommentsService _commentsService;
 
-    public CommentsController(IRepository<Comment> commentRepository, IRepository<ApplicationUser> userRepository)
+    public CommentsController(ICommentsService commentsService)
     {
-        _commentRepository = commentRepository;
-        _userRepository = userRepository;
+        _commentsService = commentsService;
     }
 
     [HttpPost]
@@ -32,34 +28,22 @@ public class CommentsController : ControllerBase
         }
 
         var userId = User.FindFirstValue("nameId");
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
+
+        try
         {
-            return NotFound("User not found.");
+            var comment = await _commentsService.AddCommentAsync(commentDto, userId);
+            return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
         }
-
-        var comment = new Comment
+        catch (ArgumentException ex)
         {
-            Content = commentDto.Content,
-            RecipeId = commentDto.RecipeId,
-            ApplicationUserId = commentDto.ApplicationUserId,
-            Timestamp = DateTime.UtcNow,
-            User = user
-        };
-
-        await _commentRepository.AddAsync(comment);
-        await _commentRepository.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Comment>> GetComment(int id)
     {
-        var comment = await _commentRepository.GetFirstOrDefaultAsync(
-            c => c.Id == id,
-            include: query => query.Include(c => c.User)
-        );
+        var comment = await _commentsService.GetCommentAsync(id);
 
         if (comment == null)
         {
@@ -72,11 +56,7 @@ public class CommentsController : ControllerBase
     [HttpGet("recipe/{recipeId}")]
     public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForRecipe(int recipeId)
     {
-        var comments = await _commentRepository.GetWhereAsync(
-            c => c.RecipeId == recipeId,
-            include: query => query.Include(c => c.User)
-        );
-
-        return Ok(comments.OrderByDescending(c => c.Timestamp).ToList());
+        var comments = await _commentsService.GetCommentsForRecipeAsync(recipeId);
+        return Ok(comments);
     }
 }

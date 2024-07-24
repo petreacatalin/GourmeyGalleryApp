@@ -8,6 +8,7 @@ using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Repositories.RecipeRepository;
 using GourmeyGalleryApp.Repositories.UserRepo;
+using GourmeyGalleryApp.Services;
 using GourmeyGalleryApp.Services.RecipeService;
 using GourmeyGalleryApp.Services.UserService.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -42,6 +43,8 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
+builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
 builder.Services.AddAuthentication(options =>

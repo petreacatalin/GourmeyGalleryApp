@@ -4,6 +4,8 @@ namespace GourmeyGalleryApp.Models.Entities
 {
     public class ApplicationUser : IdentityUser
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string ProfilePictureUrl { get; set; }
         // Navigation property representing friends added by the user
         public ICollection<Friend> FriendsAdded { get; set; }
