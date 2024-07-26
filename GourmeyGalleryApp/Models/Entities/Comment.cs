@@ -1,4 +1,6 @@
-﻿namespace GourmeyGalleryApp.Models.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace GourmeyGalleryApp.Models.Entities
 {
     public class Comment
     {
@@ -9,9 +11,9 @@
         // Foreign keys
         public string ApplicationUserId { get; set; }
         public int RecipeId { get; set; }
-
         // Navigation properties
         public ApplicationUser User { get; set; }
+        [JsonIgnore]
         public Recipe Recipe { get; set; }
     }
 }

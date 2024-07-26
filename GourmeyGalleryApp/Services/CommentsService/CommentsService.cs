@@ -22,9 +22,9 @@ namespace GourmeyGalleryApp.Services
             _userRepository = userRepository;
         }
 
-        public async Task<Comment> AddCommentAsync(CommentDto commentDto, string userId)
+        public async Task<CommentDto> AddCommentAsync(CommentDto commentDto)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(commentDto.ApplicationUserId);
             if (user == null)
             {
                 throw new ArgumentException("User not found.");
@@ -34,7 +34,7 @@ namespace GourmeyGalleryApp.Services
             {
                 Content = commentDto.Content,
                 RecipeId = commentDto.RecipeId,
-                ApplicationUserId = commentDto.ApplicationUserId,
+                ApplicationUserId = commentDto.ApplicationUserId, // Changed to use the userId parameter
                 Timestamp = DateTime.UtcNow,
                 User = user
             };
@@ -42,15 +42,48 @@ namespace GourmeyGalleryApp.Services
             await _commentsRepository.AddAsync(comment);
             await _commentsRepository.SaveChangesAsync();
 
-            return comment;
+            // Returning the created CommentDto
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                RecipeId = comment.RecipeId,
+                ApplicationUserId = comment.ApplicationUserId,
+                Timestamp = comment.Timestamp,
+                User = new ApplicationUserDto
+                {
+                    Id = comment.User.Id,
+                    FirstName = comment.User.FirstName,
+                    LastName = comment.User.LastName,
+                    ProfilePictureUrl = comment.User.ProfilePictureUrl
+                }
+            };
         }
 
-        public async Task<Comment> GetCommentAsync(int id)
+        public async Task<CommentDto> GetCommentAsync(int id)
         {
-            return await _commentsRepository.GetFirstOrDefaultAsync(
+            var comment = await _commentsRepository.GetFirstOrDefaultAsync(
                 c => c.Id == id,
                 include: query => query.Include(c => c.User)
             );
+
+            if (comment == null) return null;
+
+            return new CommentDto
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                RecipeId = comment.RecipeId,
+                ApplicationUserId = comment.ApplicationUserId,
+                Timestamp = comment.Timestamp,
+                User = new ApplicationUserDto
+                {
+                    Id = comment.User.Id,
+                    FirstName = comment.User.FirstName,
+                    LastName = comment.User.LastName,
+                    ProfilePictureUrl = comment.User.ProfilePictureUrl
+                }
+            };
         }
 
         public async Task<IEnumerable<CommentDto>> GetCommentsForRecipeAsync(int recipeId)

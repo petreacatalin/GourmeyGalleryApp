@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "angular-crumbs": "^3.0.1",
+    "bootstrap": "^5.3.3"
+  }
+}

@@ -2,7 +2,6 @@
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -27,21 +26,21 @@ public class CommentsController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var userId = User.FindFirstValue("nameId");
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         try
         {
-            var comment = await _commentsService.AddCommentAsync(commentDto, userId);
+            var comment = await _commentsService.AddCommentAsync(commentDto);
             return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
         }
         catch (ArgumentException ex)
         {
-            return NotFound(ex.Message);
+            return NotFound(new { message = ex.Message });
         }
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Comment>> GetComment(int id)
+    public async Task<ActionResult<CommentDto>> GetComment(int id)
     {
         var comment = await _commentsService.GetCommentAsync(id);
 
@@ -50,7 +49,7 @@ public class CommentsController : ControllerBase
             return NotFound();
         }
 
-        return comment;
+        return Ok(comment);
     }
 
     [HttpGet("recipe/{recipeId}")]
