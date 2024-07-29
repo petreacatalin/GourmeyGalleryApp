@@ -116,13 +116,12 @@ namespace GourmeyGalleryApp.Services
                     LastName = c.User.LastName,
                     ProfilePictureUrl = c.User.ProfilePictureUrl
                 },
-                Rating = new RatingDto { 
-                                    
-                    Id = c.Id,
+                Rating = c.Rating != null ? new RatingDto
+                {
                     RatingValue = c.Rating.RatingValue,
                     UserId = c.ApplicationUserId,
                     RecipeId = c.RecipeId,
-                }
+                } : null,
             });
         }
     }
