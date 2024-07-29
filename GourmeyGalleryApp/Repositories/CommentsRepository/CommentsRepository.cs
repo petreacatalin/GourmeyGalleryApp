@@ -22,6 +22,7 @@ namespace GourmeyGalleryApp.Infrastructure
         {
             return await _context.Comments
                 .Where(c => c.RecipeId == recipeId)
+                .Include(c => c.Rating)
                 .Include(c => c.User)
                 .OrderByDescending(c => c.Timestamp)
                 .ToListAsync();

@@ -11,7 +11,7 @@ public class AutoMapperProfile : Profile
         CreateMap<ApplicationUser, ApplicationUserDto>().ReverseMap();
         CreateMap<Recipe, RecipeDto>().ReverseMap();       
         CreateMap<Comment, CommentDto>().ReverseMap();
-        CreateMap<Review, ReviewDto>().ReverseMap();
+        CreateMap<Rating, RatingDto>().ReverseMap();
         CreateMap<IngredientsTotal, IngredientsTotalDto>().ReverseMap();
         CreateMap<Instructions, InstructionsDto>().ReverseMap();
         CreateMap<Step, StepDto>().ReverseMap();

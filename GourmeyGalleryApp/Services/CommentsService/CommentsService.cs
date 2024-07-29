@@ -30,13 +30,20 @@ namespace GourmeyGalleryApp.Services
                 throw new ArgumentException("User not found.");
             }
 
+
             var comment = new Comment
             {
                 Content = commentDto.Content,
                 RecipeId = commentDto.RecipeId,
                 ApplicationUserId = commentDto.ApplicationUserId, // Changed to use the userId parameter
-                Timestamp = DateTime.UtcNow,
-                User = user
+                Timestamp = commentDto.Timestamp,
+                User = user,
+                Rating = commentDto.Rating != null ? new Rating
+                {
+                    RatingValue = commentDto.Rating.RatingValue,
+                    UserId = commentDto.ApplicationUserId,
+                    RecipeId = commentDto.RecipeId,
+                } : null,
             };
 
             await _commentsRepository.AddAsync(comment);
@@ -56,7 +63,13 @@ namespace GourmeyGalleryApp.Services
                     FirstName = comment.User.FirstName,
                     LastName = comment.User.LastName,
                     ProfilePictureUrl = comment.User.ProfilePictureUrl
-                }
+                },
+                Rating = comment.Rating != null ? new RatingDto
+                {
+                    RatingValue = comment.Rating.RatingValue,
+                    UserId = comment.ApplicationUserId,
+                    RecipeId = comment.RecipeId,
+                } : null,
             };
         }
 
@@ -102,6 +115,13 @@ namespace GourmeyGalleryApp.Services
                     FirstName = c.User.FirstName,
                     LastName = c.User.LastName,
                     ProfilePictureUrl = c.User.ProfilePictureUrl
+                },
+                Rating = new RatingDto { 
+                                    
+                    Id = c.Id,
+                    RatingValue = c.Rating.RatingValue,
+                    UserId = c.ApplicationUserId,
+                    RecipeId = c.RecipeId,
                 }
             });
         }

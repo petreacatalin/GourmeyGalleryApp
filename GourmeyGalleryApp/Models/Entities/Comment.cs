@@ -7,11 +7,11 @@ namespace GourmeyGalleryApp.Models.Entities
         public int Id { get; set; }
         public string Content { get; set; }
         public DateTime Timestamp { get; set; }
-
-        // Foreign keys
         public string ApplicationUserId { get; set; }
         public int RecipeId { get; set; }
-        // Navigation properties
+        public int? RatingId { get; set; }
+        [JsonIgnore]
+        public Rating? Rating { get; set; }
         public ApplicationUser User { get; set; }
         [JsonIgnore]
         public Recipe Recipe { get; set; }

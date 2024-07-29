@@ -34,8 +34,8 @@ namespace GourmeyGalleryApp.Models.Entities
         public ApplicationUser ApplicationUser { get; set; }
         public ICollection<Comment> Comments { get; set; }
         //public ICollection<Review> Reviews { get; set; }
-        public IngredientsTotal IngredientsTotal { get; set; } // Update for IngredientsTotal
-        public Instructions Instructions { get; set; } // Update for Instructions
+        public IngredientsTotal IngredientsTotal { get; set; } 
+        public Instructions Instructions { get; set; } 
     }
    
 }

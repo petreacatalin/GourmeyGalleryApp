@@ -15,7 +15,7 @@ namespace GourmeyGalleryApp.Models.Entities
         public ICollection<Message> MessagesSent { get; set; }
         public ICollection<Message> MessagesReceived { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        public ICollection<Rating> Ratings { get; set; }
         public ICollection<MealPlan> MealPlans { get; set; }
         public ICollection<Recipe> Recipes { get; set; }
     }
