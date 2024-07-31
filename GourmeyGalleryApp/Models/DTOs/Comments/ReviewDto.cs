@@ -1,4 +1,4 @@
-﻿namespace GourmeyGalleryApp.DTOs
+﻿namespace GourmeyGalleryApp.Models.DTOs.Comments
 {
     public class ReviewDto
     {

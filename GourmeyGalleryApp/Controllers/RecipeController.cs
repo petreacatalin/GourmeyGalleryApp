@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GourmeyGalleryApp.DTOs;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Services;
 using GourmeyGalleryApp.Services.RecipeService;

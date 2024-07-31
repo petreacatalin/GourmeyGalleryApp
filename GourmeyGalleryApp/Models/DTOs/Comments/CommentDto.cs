@@ -1,8 +1,8 @@
-﻿using GourmeyGalleryApp.Models.DTOs;
-using GourmeyGalleryApp.Models.Entities;
+﻿using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using System.Text.Json.Serialization;
 
-namespace GourmeyGalleryApp.DTOs
+namespace GourmeyGalleryApp.Models.DTOs.Comments
 {
     public class CommentDto
     {
@@ -12,7 +12,7 @@ namespace GourmeyGalleryApp.DTOs
         public int? RatingId { get; set; }
         public DateTime Timestamp { get; set; }
         public string? ApplicationUserId { get; set; }
-        
+
         public RatingDto? Rating { get; set; }
         public ApplicationUserDto? User { get; set; }
         [JsonIgnore]

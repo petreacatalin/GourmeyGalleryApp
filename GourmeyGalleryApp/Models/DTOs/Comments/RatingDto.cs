@@ -1,8 +1,8 @@
-﻿using GourmeyGalleryApp.DTOs;
-using GourmeyGalleryApp.Models.DTOs;
+﻿using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using System.ComponentModel.DataAnnotations;
 
-namespace GourmeyGalleryApp.Models.Entities
+namespace GourmeyGalleryApp.Models.DTOs.Comments
 {
     public class RatingDto
     {

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
-using GourmeyGalleryApp.DTOs;
 using GourmeyGalleryApp.Infrastructure;
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.DTOs;
+using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
+using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;

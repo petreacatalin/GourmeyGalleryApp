@@ -1,5 +1,5 @@
-﻿using GourmeyGalleryApp.DTOs;
-using GourmeyGalleryApp.Interfaces;
+﻿using GourmeyGalleryApp.Interfaces;
+using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Services;
 using Microsoft.AspNetCore.Mvc;

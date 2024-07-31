@@ -1,4 +1,4 @@
-﻿namespace GourmeyGalleryApp.Models.DTOs
+﻿namespace GourmeyGalleryApp.Models.DTOs.ApplicationUser
 {
     public class LoginDto
     {

@@ -8,6 +8,8 @@ using GourmeyGalleryApp.Services.UserService.UserService;
 using AutoMapper;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
+using GourmeyGalleryApp.Services.EmailService;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -18,20 +20,22 @@ public class AccountController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
-   
+    private readonly IEmailService _emailService;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
         IUserService userService,
-        IMapper mapper)
+        IMapper mapper,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
         _userService = userService;
         _mapper = mapper;
+        _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -44,7 +48,7 @@ public class AccountController : ControllerBase
 
         var user = new ApplicationUser
         {
-            FirstName = registerDto.FirstName, 
+            FirstName = registerDto.FirstName,
             LastName = registerDto.LastName,
             UserName = registerDto.Email,
             Email = registerDto.Email,
@@ -65,15 +69,20 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
         var user = await _userManager.FindByEmailAsync(loginDto.UserName);
+        var invalidResult = new AuthResult()
+        {
+            Result = false,
+            Errors = { "Invalid login attempt." }
+        };
         if (user == null)
         {
-            return Unauthorized("Invalid login attempt.");
+            return Unauthorized(invalidResult);
         }
 
-        var result = await _userManager.CheckPasswordAsync(user,loginDto.Password);
+        var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
         if (!result)
         {
-            return Unauthorized("Invalid login attempt.");
+            return Unauthorized(invalidResult);
         }
 
         var token = GenerateJwtToken(user);
@@ -81,7 +90,7 @@ public class AccountController : ControllerBase
         {
             Token = token,
             Result = true,
-           
+
         });
     }
 
@@ -89,16 +98,16 @@ public class AccountController : ControllerBase
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key  = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtConfig").GetSection("Key").Value!);
+        var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtConfig").GetSection("Key").Value!);
 
         List<Claim> claims =
             [
                 new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
                 new(JwtRegisteredClaimNames.FamilyName, user.FirstName ?? ""),
-                new(JwtRegisteredClaimNames.GivenName , user.LastName ?? ""),
+                new(JwtRegisteredClaimNames.GivenName, user.LastName ?? ""),
                 new(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
                 new(JwtRegisteredClaimNames.NameId, user.Id ?? ""),
-                new(JwtRegisteredClaimNames.Aud, 
+                new(JwtRegisteredClaimNames.Aud,
                 _configuration.GetSection("JwtConfig").GetSection("Audience").Value!),
                 new(JwtRegisteredClaimNames.Iss,
                 _configuration.GetSection("JwtConfig").GetSection("Issuer").Value!),
@@ -112,30 +121,170 @@ public class AccountController : ControllerBase
             SigningCredentials = new SigningCredentials
             (new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
         };
-        
+
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
 
-    //    var claims = new[]
-    //    {
-    //    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-    //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-    //    new Claim(JwtRegisteredClaimNames.NameId, user.Id) // Ensure user ID is included
-    //};
+        #region JWT Comment
+        //    var claims = new[]
+        //    {
+        //    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+        //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        //    new Claim(JwtRegisteredClaimNames.NameId, user.Id) // Ensure user ID is included
+        //};
 
-    //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtConfig:Key"]));
-    //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtConfig:Key"]));
+        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-    //    var token = new JwtSecurityToken(
-    //        issuer: _configuration["JwtConfig:Issuer"],
-    //        audience: _configuration["JwtConfig:Audience"],
-    //        claims: claims,
-    //        expires: DateTime.UtcNow.AddDays(14), // Token expiration
-    //        signingCredentials: creds);
+        //    var token = new JwtSecurityToken(
+        //        issuer: _configuration["JwtConfig:Issuer"],
+        //        audience: _configuration["JwtConfig:Audience"],
+        //        claims: claims,
+        //        expires: DateTime.UtcNow.AddDays(14), // Token expiration
+        //        signingCredentials: creds);
 
-    //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        #endregion
     }
+
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+    {
+        var invalidResult = new AuthResult()
+        {
+            Result = false,
+            Errors = { }
+        };
+
+        var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+        if (user == null)
+        {
+            invalidResult.Errors.Add("No user found with this email address.");
+            return BadRequest(invalidResult);
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        // Generate the URL for Angular app
+        var resetLink = $"{_configuration["AppUrl"]}/reset-password?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
+
+        // Send the resetLink via email
+        await SendResetPasswordEmail(user.Email, resetLink);
+        var successMessage = new AuthResult { Result = true, SuccessMessage = "Password reset link has been sent to your email address." };
+        
+        return Ok(successMessage);
+    }
+
+
+    private async Task SendResetPasswordEmail(string email, string resetLink)
+    {
+        var subject = "Password Reset Request";
+        var body = $@"
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                color: #333;
+                margin: 0;
+                padding: 20px;
+            }}
+            .container {{
+                background: #ffffff;
+                border-radius: 8px;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }}
+            .header {{
+                text-align: center;
+                margin-bottom: 20px;
+            }}
+            .header img {{
+                max-width: 150px;
+            }}
+            .content {{
+                margin-bottom: 20px;
+            }}
+            .footer {{
+                font-size: 0.875rem;
+                color: #888;
+                text-align: center;
+            }}
+            .btn {{
+                display: inline-block;
+                font-size: 1rem;
+                color: #ffffff;
+                background-color: #007bff;
+                padding: 12px 20px;
+                text-decoration: none;
+                border-radius: 4px;
+                margin: 10px 0;
+                text-align: center;
+            }}
+            .btn:hover {{
+                background-color: #0056b3;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <img src='https://www.shutterstock.com/image-vector/circle-line-simple-design-logo-600nw-2174926871.jpg' alt='Company Logo'>
+            </div>
+            <div class='content'>
+                <h2>Password Reset Request</h2>
+                <p>Hello,</p>
+                <p>We received a request to reset your password. Click the button below to reset it:</p>
+                <a href='{resetLink}' class='btn'>Reset Password</a>
+                <p>If you didn’t request this, please ignore this email.</p>
+            </div>
+            <div class='footer'>
+                <p>&copy; 2024 Company Name. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>";
+
+        await _emailService.SendEmailAsync(email, subject, body);
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+    {
+        var invalidResult = new AuthResult()
+        {
+            Result = false,
+            Errors = { "Token has expired" }
+        };
+
+        if (string.IsNullOrEmpty(resetPasswordDto.Token) || string.IsNullOrEmpty(resetPasswordDto.Email))
+        {
+            return BadRequest("Invalid request parameters.");
+        }
+
+        var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+        if (user == null)
+        {
+            return BadRequest("Invalid request.");
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.NewPassword);
+        if (!result.Succeeded)
+        {
+            return BadRequest(invalidResult);
+        }
+
+        return Ok("Password has been reset.");
+    }
+
 
 
     [HttpGet("profile")]

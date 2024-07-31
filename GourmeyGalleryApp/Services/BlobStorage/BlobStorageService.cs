@@ -8,39 +8,45 @@ using System.Threading.Tasks;
 public class BlobStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly BlobContainerClient _containerClient;
+    private readonly string _containerName;
 
-    public BlobStorageService(string connectionString, string containerName)
+    public BlobStorageService(IConfiguration configuration)
     {
+        var connectionString = configuration["AzureBlobStorage:ConnectionString"];
+        _containerName = configuration["AzureBlobStorage:ContainerName"];
         _blobServiceClient = new BlobServiceClient(connectionString);
-        _containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
     }
 
-    public async Task<List<Uri>> UploadFiles(List<IFormFile> files)
+    public async Task<List<string>> UploadFiles(List<IFormFile> files)
     {
-        var blobUris = new List<Uri>();
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        await containerClient.CreateIfNotExistsAsync();
+
+        var urls = new List<string>();
 
         foreach (var file in files)
         {
-            string fileName = file.FileName;
+            var blobClient = containerClient.GetBlobClient(file.FileName);
             using (var stream = file.OpenReadStream())
             {
-                var blobClient = _containerClient.GetBlobClient(fileName);
                 await blobClient.UploadAsync(stream, true);
-                blobUris.Add(blobClient.Uri);
             }
+            urls.Add(blobClient.Uri.ToString());
         }
 
-        return blobUris;
+        return urls;
     }
 
     public async Task<List<string>> GetUploadedBlobNamesAsync()
     {
-        var blobNames = new List<string>();
-        await foreach (BlobItem blobItem in _containerClient.GetBlobsAsync())
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        var blobUrls = new List<string>();
+
+        await foreach (var blobItem in containerClient.GetBlobsAsync())
         {
-            blobNames.Add(blobItem.Name);
+            blobUrls.Add(containerClient.GetBlobClient(blobItem.Name).Uri.ToString());
         }
-        return blobNames;
+
+        return blobUrls;
     }
 }

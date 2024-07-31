@@ -1,4 +1,4 @@
-﻿using GourmeyGalleryApp.DTOs;
+﻿using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -1,7 +1,8 @@
 ﻿// AutoMapperProfile.cs
 using AutoMapper;
-using GourmeyGalleryApp.DTOs;
-using GourmeyGalleryApp.Models.DTOs;
+using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
+using GourmeyGalleryApp.Models.DTOs.Comments;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 
 public class AutoMapperProfile : Profile

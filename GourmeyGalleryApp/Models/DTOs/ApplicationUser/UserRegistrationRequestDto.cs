@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GourmeyGalleryApp.Models.DTOs
+namespace GourmeyGalleryApp.Models.DTOs.ApplicationUser
 {
     public class UserRegistrationRequestDto
     {
@@ -10,12 +10,12 @@ namespace GourmeyGalleryApp.Models.DTOs
 
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } 
+        public string Password { get; set; }
 
         [Required]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         [DataType(DataType.Password)]
-        public string ConfirmPassword { get; set; } 
+        public string ConfirmPassword { get; set; }
         public string? ProfilePictureUrl { get; set; }
     }
 }
