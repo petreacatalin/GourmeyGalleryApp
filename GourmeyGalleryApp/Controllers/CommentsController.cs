@@ -1,7 +1,9 @@
 ﻿using GourmeyGalleryApp.DTOs;
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
+using GourmeyGalleryApp.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -57,5 +59,34 @@ public class CommentsController : ControllerBase
     {
         var comments = await _commentsService.GetCommentsForRecipeAsync(recipeId);
         return Ok(comments);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateComment(int id, [FromBody] CommentDto commentDto)
+    {
+        try
+        {
+            commentDto.Id = id; // Ensure the ID is set
+            await _commentsService.UpdateCommentAsync(commentDto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteComment(int id)
+    {
+        try
+        {
+            await _commentsService.DeleteCommentAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

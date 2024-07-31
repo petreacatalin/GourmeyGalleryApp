@@ -56,22 +56,17 @@ public class RecipeController : ControllerBase
 
         try
         {
-            // Map the DTO to the Recipe entity
             var recipe = _mapper.Map<Recipe>(recipeDto);
 
-            // Extract user ID from the token
             var userId = User.FindFirstValue("nameId");
 
-            // Check if user ID is null or empty
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized("User ID not found in token.");
             }
 
-            // Set the ApplicationUserId in the Recipe entity
             recipe.ApplicationUserId = userId;
 
-            // Ensure Instructions and IngredientsTotal entities are created if not null
             if (recipeDto.Instructions != null)
             {
                 recipe.Instructions = new Instructions
@@ -87,13 +82,10 @@ public class RecipeController : ControllerBase
                 };
             }
 
-            // Add the recipe using the RecipeService
             await _recipeService.AddRecipeAsync(recipe);
 
-            // Fetch the updated recipe to get the correct IDs
             var savedRecipe = await _recipeService.GetRecipeByIdAsync(recipe.Id);
 
-            // Map the result back to a DTO
             var recipeDtoResult = _mapper.Map<RecipeDto>(savedRecipe);
 
             // Return a CreatedAtAction response

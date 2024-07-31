@@ -24,60 +24,65 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
 
-
-        // Configure Recipe to ApplicationUser relationship
+        // Recipe to ApplicationUser relationship
         modelBuilder.Entity<Recipe>()
             .HasOne(r => r.ApplicationUser)
             .WithMany(u => u.Recipes)
             .HasForeignKey(r => r.ApplicationUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure Comment entity
+        // Comment entity
         modelBuilder.Entity<Comment>()
             .HasOne(c => c.User)
             .WithMany(u => u.Comments)
             .HasForeignKey(c => c.ApplicationUserId)
-            .OnDelete(DeleteBehavior.Restrict); // No cascade delete
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Comment>()
             .HasOne(c => c.Recipe)
             .WithMany(r => r.Comments)
             .HasForeignKey(c => c.RecipeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Rating)
+            .WithMany()
+            .HasForeignKey(c => c.RatingId)
+            .OnDelete(DeleteBehavior.SetNull); // Ensure no cascade delete here
+
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.ParentComment)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(c => c.ParentCommentId)
             .OnDelete(DeleteBehavior.Restrict); // No cascade delete
 
-        // Configure Rating entity
+        // Rating entity
         modelBuilder.Entity<Rating>()
             .HasOne(r => r.User)
             .WithMany(u => u.Ratings)
             .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Restrict); // No cascade delete
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Rating>()
             .HasOne(r => r.Recipe)
-            .WithMany() // No collection navigation property here
+            .WithMany()
             .HasForeignKey(r => r.RecipeId)
-            .OnDelete(DeleteBehavior.NoAction); // No cascade delete
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure IngredientsTotal and Instructions with Recipe
+        // Recipe to IngredientsTotal and Instructions
         modelBuilder.Entity<Recipe>()
             .HasOne(r => r.IngredientsTotal)
             .WithOne(it => it.Recipe)
             .HasForeignKey<IngredientsTotal>(it => it.RecipeId)
-            .OnDelete(DeleteBehavior.Cascade); // Cascade delete for IngredientsTotal
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Recipe>()
             .HasOne(r => r.Instructions)
             .WithOne(i => i.Recipe)
             .HasForeignKey<Instructions>(i => i.RecipeId)
-            .OnDelete(DeleteBehavior.Cascade); // Cascade delete for Instructions
+            .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Comment>()
-     .HasOne(c => c.Rating)
-     .WithMany()
-     .HasForeignKey(c => c.RatingId)
-     .OnDelete(DeleteBehavior.SetNull); // Or DeleteBehavior.Restrict, depending on your use case
-
-        // Configure other entities
+        // Other entities
         modelBuilder.Entity<MealPlan>()
             .HasOne(mp => mp.User)
             .WithMany(u => u.MealPlans)
@@ -108,7 +113,6 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(s => s.InstructionsId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure Friend entity
         modelBuilder.Entity<Friend>()
             .HasOne(f => f.User)
             .WithMany(u => u.FriendsAdded)
@@ -121,6 +125,11 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(f => f.FriendId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.ParentComment)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(c => c.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
 }

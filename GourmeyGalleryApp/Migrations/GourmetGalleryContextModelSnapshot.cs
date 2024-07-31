@@ -115,6 +115,12 @@ namespace GourmeyGalleryApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsReply")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("RatingId")
                         .HasColumnType("int");
 
@@ -127,6 +133,8 @@ namespace GourmeyGalleryApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("RatingId");
 
@@ -535,6 +543,11 @@ namespace GourmeyGalleryApp.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GourmeyGalleryApp.Models.Entities.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GourmeyGalleryApp.Models.Entities.Rating", "Rating")
                         .WithMany()
                         .HasForeignKey("RatingId")
@@ -545,6 +558,8 @@ namespace GourmeyGalleryApp.Migrations
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ParentComment");
 
                     b.Navigation("Rating");
 
@@ -638,7 +653,7 @@ namespace GourmeyGalleryApp.Migrations
                     b.HasOne("GourmeyGalleryApp.Models.Entities.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GourmeyGalleryApp.Models.Entities.ApplicationUser", "User")
                         .WithMany("Ratings")
@@ -742,6 +757,11 @@ namespace GourmeyGalleryApp.Migrations
                     b.Navigation("Ratings");
 
                     b.Navigation("Recipes");
+                });
+
+            modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.Comment", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.IngredientsTotal", b =>

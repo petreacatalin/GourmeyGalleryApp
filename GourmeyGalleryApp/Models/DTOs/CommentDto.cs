@@ -17,5 +17,10 @@ namespace GourmeyGalleryApp.DTOs
         public ApplicationUserDto? User { get; set; }
         [JsonIgnore]
         public RecipeDto? Recipe { get; set; }
+        public bool? IsReply { get; set; }
+        public int? ParentCommentId { get; set; }
+        [JsonIgnore]
+        public CommentDto? ParentComment { get; set; }
+        public ICollection<CommentDto>? Replies { get; set; } = new List<CommentDto>();
     }
 }

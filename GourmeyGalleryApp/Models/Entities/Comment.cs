@@ -14,6 +14,11 @@ namespace GourmeyGalleryApp.Models.Entities
         public Rating? Rating { get; set; }
         public ApplicationUser User { get; set; }
         [JsonIgnore]
-        public Recipe Recipe { get; set; }
+        public Recipe? Recipe { get; set; }
+        public bool IsReply { get; set; }
+        public int? ParentCommentId { get; set; }
+        [JsonIgnore]
+        public Comment? ParentComment { get; set; }
+        public ICollection<Comment>? Replies { get; set; } = new List<Comment>();
     }
 }

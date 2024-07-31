@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GourmeyGalleryApp.Migrations
 {
     [DbContext(typeof(GourmetGalleryContext))]
-    [Migration("20240729132753_RatingEntityToCommenhjuhy")]
-    partial class RatingEntityToCommenhjuhy
+    [Migration("20240730103239_IsReplyBoxx")]
+    partial class IsReplyBoxx
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,7 +118,13 @@ namespace GourmeyGalleryApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RatingId")
+                    b.Property<bool>("IsReply")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RatingId")
                         .HasColumnType("int");
 
                     b.Property<int>("RecipeId")
@@ -130,6 +136,8 @@ namespace GourmeyGalleryApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("RatingId");
 
@@ -286,7 +294,7 @@ namespace GourmeyGalleryApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("RatingValue")
+                    b.Property<int?>("RatingValue")
                         .HasColumnType("int");
 
                     b.Property<int?>("RecipeId")
@@ -538,17 +546,23 @@ namespace GourmeyGalleryApp.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GourmeyGalleryApp.Models.Entities.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GourmeyGalleryApp.Models.Entities.Rating", "Rating")
                         .WithMany()
                         .HasForeignKey("RatingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("GourmeyGalleryApp.Models.Entities.Recipe", "Recipe")
                         .WithMany("Comments")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ParentComment");
 
                     b.Navigation("Rating");
 
@@ -642,7 +656,7 @@ namespace GourmeyGalleryApp.Migrations
                     b.HasOne("GourmeyGalleryApp.Models.Entities.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GourmeyGalleryApp.Models.Entities.ApplicationUser", "User")
                         .WithMany("Ratings")
@@ -746,6 +760,11 @@ namespace GourmeyGalleryApp.Migrations
                     b.Navigation("Ratings");
 
                     b.Navigation("Recipes");
+                });
+
+            modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.Comment", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.IngredientsTotal", b =>
