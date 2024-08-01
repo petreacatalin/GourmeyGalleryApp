@@ -36,9 +36,8 @@ namespace GourmeyGalleryApp.Services.RecipeService
 
         public async Task AddRecipeAsync(Recipe recipe)
         {
-            // Add the recipe
             await _recipeCustomRepository.AddRecipeAsync(recipe);
-            await _recipeCustomRepository.SaveChangesAsync();  // Ensure SaveChanges is implemented in the Repository
+            await _recipeCustomRepository.SaveChangesAsync();
 
             // Set the InstructionsId and IngredientsTotalId
             if (recipe.Instructions != null)
@@ -51,6 +50,15 @@ namespace GourmeyGalleryApp.Services.RecipeService
                 recipe.IngredientsTotal.RecipeId = recipe.Id;
                 recipe.IngredientsTotalId = recipe.IngredientsTotal.Id;
             }
+            if (recipe.InformationTime != null)
+            {
+                recipe.InformationTime.RecipeId = recipe.Id;
+            }
+            if (recipe.NutritionFacts != null)
+            {
+                recipe.NutritionFacts.RecipeId = recipe.Id;
+            }
+
             await _recipeCustomRepository.SaveChangesAsync();
         }
 

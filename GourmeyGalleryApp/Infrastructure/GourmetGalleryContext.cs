@@ -19,6 +19,8 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
     public DbSet<Message> Messages { get; set; }
     public DbSet<IngredientsTotal> IngredientsTotal { get; set; }
     public DbSet<Instructions> Instructions { get; set; }
+    public DbSet<NutritionFacts> NutritionFacts { get; set; }
+    public DbSet<InformationTime> InformationTimes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -130,6 +132,16 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .WithMany(c => c.Replies)
             .HasForeignKey(c => c.ParentCommentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Recipe>()
+            .HasOne(r => r.NutritionFacts)
+            .WithOne(nf => nf.Recipe)
+            .HasForeignKey<NutritionFacts>(nf => nf.RecipeId);
+
+        modelBuilder.Entity<Recipe>()
+            .HasOne(r => r.InformationTime)
+            .WithOne(it => it.Recipe)
+            .HasForeignKey<InformationTime>(it => it.RecipeId);        
     }
 
 }

@@ -17,6 +17,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Instructions, InstructionsDto>().ReverseMap();
         CreateMap<Step, StepDto>().ReverseMap();
         CreateMap<Ingredient, IngredientDto>().ReverseMap();
+        CreateMap<InformationTime, InformationTimeDto>().ReverseMap();
+        CreateMap<NutritionFacts, NutritionFactsDto>().ReverseMap();
 
     }
 }

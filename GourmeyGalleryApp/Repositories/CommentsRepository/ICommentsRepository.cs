@@ -3,7 +3,7 @@ using GourmeyGalleryApp.Models.Entities;
 
 namespace GourmeyGalleryApp.Infrastructure
 {
-        public interface ICommentsRepository : IRepository<Comment>
+    public interface ICommentsRepository : IRepository<Comment>
         {
             Task<IEnumerable<Comment>> GetCommentsForRecipeAsync(int recipeId);
             Task UpdateCommentAsync(Comment comment);

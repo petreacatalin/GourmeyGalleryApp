@@ -4,6 +4,7 @@ using GourmetGallery.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GourmeyGalleryApp.Migrations
 {
     [DbContext(typeof(GourmetGalleryContext))]
-    partial class GourmetGalleryContextModelSnapshot : ModelSnapshot
+    [Migration("20240801114927_Multiple")]
+    partial class Multiple
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -367,21 +370,9 @@ namespace GourmeyGalleryApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("CookingMethod")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Cuisine")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("DietaryRestrictions")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DifficultyLevel")
-                        .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
@@ -392,19 +383,7 @@ namespace GourmeyGalleryApp.Migrations
                     b.Property<int>("InstructionsId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MainIngredient")
-                        .HasColumnType("int");
-
                     b.Property<int?>("MealPlanId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MealType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Occasion")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("OtherCategories")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -443,6 +422,26 @@ namespace GourmeyGalleryApp.Migrations
                     b.HasIndex("InstructionsId");
 
                     b.ToTable("Step");
+                });
+
+            modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("TagType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TagValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("MealPlan", b =>
@@ -595,6 +594,21 @@ namespace GourmeyGalleryApp.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("RecipeTagMapping", b =>
+                {
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RecipeId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("RecipeTagMapping");
                 });
 
             modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.Comment", b =>
@@ -821,6 +835,21 @@ namespace GourmeyGalleryApp.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RecipeTagMapping", b =>
+                {
+                    b.HasOne("GourmeyGalleryApp.Models.Entities.Recipe", null)
+                        .WithMany()
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GourmeyGalleryApp.Models.Entities.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

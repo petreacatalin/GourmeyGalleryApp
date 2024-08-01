@@ -57,7 +57,6 @@ public class RecipeController : ControllerBase
         try
         {
             var recipe = _mapper.Map<Recipe>(recipeDto);
-
             var userId = User.FindFirstValue("nameId");
 
             if (string.IsNullOrEmpty(userId))
@@ -81,14 +80,20 @@ public class RecipeController : ControllerBase
                     Ingredients = recipeDto.IngredientsTotal.Ingredients.Select(ingredientDto => _mapper.Map<Ingredient>(ingredientDto)).ToList()
                 };
             }
+            if (recipeDto.InformationTime != null)
+            {
+                recipe.InformationTime = _mapper.Map<InformationTime>(recipeDto.InformationTime);
+            }
+            if (recipeDto.NutritionFacts != null)
+            {
+                recipe.NutritionFacts = _mapper.Map<NutritionFacts>(recipeDto.NutritionFacts);
+            }
 
             await _recipeService.AddRecipeAsync(recipe);
 
             var savedRecipe = await _recipeService.GetRecipeByIdAsync(recipe.Id);
-
             var recipeDtoResult = _mapper.Map<RecipeDto>(savedRecipe);
 
-            // Return a CreatedAtAction response
             return CreatedAtAction(nameof(GetRecipe),
                 new { id = savedRecipe.Id, applicationUserId = savedRecipe.ApplicationUserId }, recipeDtoResult);
         }
@@ -97,7 +102,6 @@ public class RecipeController : ControllerBase
             return StatusCode(500, "Internal server error.");
         }
     }
-
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeDto recipeDto)

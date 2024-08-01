@@ -43,7 +43,8 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
            .Include(r => r.Instructions)
                .ThenInclude(i => i.Steps)
            .Include(r => r.Comments)
-           //.Include(r => r.Reviews)
+           .Include(x=> x.NutritionFacts)
+           .Include(x => x.InformationTime)
             .FirstOrDefaultAsync(r => r.Id == id);
         }
 

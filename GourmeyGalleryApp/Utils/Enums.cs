@@ -1,6 +1,6 @@
 ﻿namespace GourmeyGalleryApp.Utils
 {
-    public class Enums
+    public class RecipeEnums
     {
         public enum MealType
         {
@@ -9,7 +9,8 @@
             Dinner,
             Snacks,
             Desserts,
-            Brunch
+            Brunch,
+            Drinks
         }
 
         public enum Cuisine

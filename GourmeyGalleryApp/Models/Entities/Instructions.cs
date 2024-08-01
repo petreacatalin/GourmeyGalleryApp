@@ -1,5 +1,4 @@
-﻿
-namespace GourmeyGalleryApp.Models.Entities
+﻿namespace GourmeyGalleryApp.Models.Entities
 {
     public class Instructions
     {

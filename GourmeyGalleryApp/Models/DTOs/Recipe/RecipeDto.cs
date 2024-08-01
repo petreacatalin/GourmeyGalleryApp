@@ -1,7 +1,7 @@
 ﻿using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.Entities;
 using System.Text.Json.Serialization;
-using static GourmeyGalleryApp.Utils.Enums;
+using static GourmeyGalleryApp.Utils.RecipeEnums;
 
 namespace GourmeyGalleryApp.Models.DTOs.Recipe
 {
@@ -34,6 +34,8 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         // public ICollection<ReviewDto> Reviews { get; set; } = new List<ReviewDto>();
         public IngredientsTotalDto IngredientsTotal { get; set; } // Updated DTO
         public InstructionsDto Instructions { get; set; } // Updated DTO
+        public NutritionFactsDto? NutritionFacts { get; set; }
+        public InformationTimeDto? InformationTime { get; set; }
     }
 
 
