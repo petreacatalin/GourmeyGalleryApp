@@ -21,6 +21,7 @@ public class AccountController : ControllerBase
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
+    private readonly BlobStorageService _blobStorageService;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
@@ -28,7 +29,8 @@ public class AccountController : ControllerBase
         IConfiguration configuration,
         IUserService userService,
         IMapper mapper,
-        IEmailService emailService)
+        IEmailService emailService,
+        BlobStorageService blobStorageService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -36,6 +38,7 @@ public class AccountController : ControllerBase
         _userService = userService;
         _mapper = mapper;
         _emailService = emailService;
+        _blobStorageService = blobStorageService;
     }
 
     [HttpPost("register")]
@@ -52,7 +55,7 @@ public class AccountController : ControllerBase
             LastName = registerDto.LastName,
             UserName = registerDto.Email,
             Email = registerDto.Email,
-            ProfilePictureUrl = registerDto.ProfilePictureUrl ?? "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png"
+            ProfilePictureUrl = registerDto.ProfilePictureUrl ?? "https://gourmetgallery01.blob.core.windows.net/gourmetgallery01/profile-circle.png"
         };
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -173,7 +176,7 @@ public class AccountController : ControllerBase
         // Send the resetLink via email
         await SendResetPasswordEmail(user.Email, resetLink);
         var successMessage = new AuthResult { Result = true, SuccessMessage = "Password reset link has been sent to your email address." };
-        
+
         return Ok(successMessage);
     }
 
@@ -285,7 +288,46 @@ public class AccountController : ControllerBase
         return Ok("Password has been reset.");
     }
 
+    [HttpPut("profile-picture")]
+    public async Task<IActionResult> UpdateProfilePicture(IFormFile file)
+    {        
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("No file uploaded.");
+        }
 
+        var userId = User.FindFirstValue("nameId");
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var profilePictureUrl = await _blobStorageService.UploadFile(file);
+        user.ProfilePictureUrl = profilePictureUrl;
+
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
+
+
+    [HttpPut("remove-profile-picture")]
+    public async Task<IActionResult> RemoveProfilePicture()
+    {
+
+        var userId = User.FindFirstValue("nameId");
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+        user.ProfilePictureUrl = "https://gourmetgallery01.blob.core.windows.net/gourmetgallery01/profile-circle.png";
+
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
 
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
@@ -309,7 +351,7 @@ public class AccountController : ControllerBase
     [HttpPut("profile")]
     public async Task<IActionResult> UpdateProfile(ApplicationUserDto userDto)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue("nameId");
         var user = await _userService.GetUserByIdAsync(userId);
 
         if (user == null)
@@ -342,7 +384,7 @@ public class AccountController : ControllerBase
     [HttpPost("add-friend/{friendId}")]
     public async Task<IActionResult> AddFriend(string friendId)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue("nameId");
 
         await _userService.AddFriendAsync(userId, friendId);
 
@@ -352,11 +394,35 @@ public class AccountController : ControllerBase
     [HttpPost("accept-friend/{friendId}")]
     public async Task<IActionResult> AcceptFriend(string friendId)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue("nameId");
 
         await _userService.AcceptFriendAsync(userId, friendId);
 
         return Ok();
+    }
+
+    [HttpPost("add-favorite/{recipeId}")]
+    public async Task<IActionResult> AddFavorite(int recipeId)
+    {
+        var userId = User.FindFirstValue("nameId");
+        await _userService.AddToFavoritesAsync(userId, recipeId);
+        return Ok();
+    }
+
+    [HttpPost("remove-favorite/{recipeId}")]
+    public async Task<IActionResult> RemoveFavorite(int recipeId)
+    {
+        var userId = User.FindFirstValue("nameId");
+        await _userService.RemoveFromFavoritesAsync(userId, recipeId);
+        return Ok();
+    }
+
+    [HttpGet("favorites")]
+    public async Task<IActionResult> GetFavorites()
+    {
+        var userId = User.FindFirstValue("nameId");
+        var favorites = await _userService.GetFavoriteRecipesAsync(userId);
+        return Ok(favorites);
     }
 }
 

@@ -36,7 +36,8 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         public InstructionsDto Instructions { get; set; } // Updated DTO
         public NutritionFactsDto? NutritionFacts { get; set; }
         public InformationTimeDto? InformationTime { get; set; }
+        public IFormFile? Image { get; set; } 
     }
-
-
 }
+
+

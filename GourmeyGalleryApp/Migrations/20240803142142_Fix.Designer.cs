@@ -4,6 +4,7 @@ using GourmetGallery.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GourmeyGalleryApp.Migrations
 {
     [DbContext(typeof(GourmetGalleryContext))]
-    partial class GourmetGalleryContextModelSnapshot : ModelSnapshot
+    [Migration("20240803142142_Fix")]
+    partial class Fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -445,21 +448,6 @@ namespace GourmeyGalleryApp.Migrations
                     b.ToTable("Step");
                 });
 
-            modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.UserFavoriteRecipe", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "RecipeId");
-
-                    b.HasIndex("RecipeId");
-
-                    b.ToTable("UserFavoriteRecipes");
-                });
-
             modelBuilder.Entity("MealPlan", b =>
                 {
                     b.Property<int>("Id")
@@ -777,25 +765,6 @@ namespace GourmeyGalleryApp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.UserFavoriteRecipe", b =>
-                {
-                    b.HasOne("GourmeyGalleryApp.Models.Entities.Recipe", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GourmeyGalleryApp.Models.Entities.ApplicationUser", "User")
-                        .WithMany("UserFavoriteRecipes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("MealPlan", b =>
                 {
                     b.HasOne("GourmeyGalleryApp.Models.Entities.ApplicationUser", "User")
@@ -875,8 +844,6 @@ namespace GourmeyGalleryApp.Migrations
                     b.Navigation("Ratings");
 
                     b.Navigation("Recipes");
-
-                    b.Navigation("UserFavoriteRecipes");
                 });
 
             modelBuilder.Entity("GourmeyGalleryApp.Models.Entities.Comment", b =>

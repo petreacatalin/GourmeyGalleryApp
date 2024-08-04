@@ -1,4 +1,5 @@
 ﻿using GourmeyGalleryApp.Interfaces;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 
 namespace GourmeyGalleryApp.Repositories.UserRepo
@@ -7,5 +8,8 @@ namespace GourmeyGalleryApp.Repositories.UserRepo
     {
         Task<ApplicationUser> GetUserByIdAsync(string userId);
         Task<IEnumerable<ApplicationUser>> GetAllUsersAsync();
+        Task AddToFavoritesAsync(string userId, int recipeId);
+        Task RemoveFromFavoritesAsync(string userId, int recipeId);
+        Task<IEnumerable<RecipeDto>> GetFavoriteRecipesAsync(string userId);
     }
 }

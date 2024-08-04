@@ -21,6 +21,7 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
     public DbSet<Instructions> Instructions { get; set; }
     public DbSet<NutritionFacts> NutritionFacts { get; set; }
     public DbSet<InformationTime> InformationTimes { get; set; }
+    public DbSet<UserFavoriteRecipe> UserFavoriteRecipes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -141,7 +142,22 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Recipe>()
             .HasOne(r => r.InformationTime)
             .WithOne(it => it.Recipe)
-            .HasForeignKey<InformationTime>(it => it.RecipeId);        
+            .HasForeignKey<InformationTime>(it => it.RecipeId);
+
+        modelBuilder.Entity<UserFavoriteRecipe>()
+          .HasKey(uf => new { uf.UserId, uf.RecipeId });
+
+        modelBuilder.Entity<UserFavoriteRecipe>()
+            .HasOne(uf => uf.User)
+            .WithMany(u => u.UserFavoriteRecipes)
+            .HasForeignKey(uf => uf.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserFavoriteRecipe>()
+            .HasOne(uf => uf.Recipe)
+            .WithMany() // No navigation property in Recipe for favorites
+            .HasForeignKey(uf => uf.RecipeId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
 }

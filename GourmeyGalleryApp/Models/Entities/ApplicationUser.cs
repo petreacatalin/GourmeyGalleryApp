@@ -18,5 +18,6 @@ namespace GourmeyGalleryApp.Models.Entities
         public ICollection<Rating> Ratings { get; set; }
         public ICollection<MealPlan> MealPlans { get; set; }
         public ICollection<Recipe> Recipes { get; set; }
+        public ICollection<UserFavoriteRecipe> UserFavoriteRecipes { get; set; }
     }
 }

@@ -12,9 +12,9 @@ public class UploadController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadBlobs(List<IFormFile> files)
+    public async Task<IActionResult> UploadBlobs(IFormFile file)
     {
-        var response = await _blobStorageService.UploadFiles(files);
+        var response = await _blobStorageService.UploadFile(file);
         return Ok(response);
     }
 

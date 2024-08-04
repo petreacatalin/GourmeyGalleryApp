@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
 using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Services;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -19,11 +21,22 @@ public class RecipeController : ControllerBase
     private readonly IRecipeService _recipeService;
     private readonly IMapper _mapper;
     private readonly UserManager<ApplicationUser> _userManager;
-    public RecipeController(IRecipeService recipeService, IMapper mapper, UserManager<ApplicationUser> userManager)
+    private readonly IConfiguration _configuration;
+    private readonly BlobStorageService _blobStorageService;
+
+    public RecipeController(
+        IRecipeService recipeService,
+        IMapper mapper,
+        UserManager<ApplicationUser> userManager,
+        IConfiguration configuration,
+        BlobStorageService blobStorageService
+        )
     {
         _recipeService = recipeService;
         _mapper = mapper;
         _userManager = userManager;
+        _configuration = configuration;
+        _blobStorageService = blobStorageService;
     }
 
     [HttpGet]
@@ -47,7 +60,7 @@ public class RecipeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRecipe(RecipeDto recipeDto)
+    public async Task<IActionResult> CreateRecipe([FromBody] RecipeDto recipeDto)
     {
         if (!ModelState.IsValid)
         {
@@ -89,6 +102,14 @@ public class RecipeController : ControllerBase
                 recipe.NutritionFacts = _mapper.Map<NutritionFacts>(recipeDto.NutritionFacts);
             }
 
+            //// Handle file upload
+            //if (recipeDto.Image != null)
+            //{
+            //    var blobStorageService = new BlobStorageService(_configuration); // Consider injecting this service
+            //    var imageUrl = await blobStorageService.UploadFile(recipeDto.Image);
+            //    recipe.ImageUrl = imageUrl; // Save the URL of the uploaded image
+            //}
+
             await _recipeService.AddRecipeAsync(recipe);
 
             var savedRecipe = await _recipeService.GetRecipeByIdAsync(recipe.Id);
@@ -102,6 +123,7 @@ public class RecipeController : ControllerBase
             return StatusCode(500, "Internal server error.");
         }
     }
+   
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRecipe(int id, [FromBody] RecipeDto recipeDto)

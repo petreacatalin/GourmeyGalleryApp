@@ -2,6 +2,7 @@
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models;
 using GourmeyGalleryApp.Models.DTOs;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Repositories.UserRepo;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,20 @@ namespace GourmeyGalleryApp.Services.UserService.UserService
             }
         }
 
+        public async Task AddToFavoritesAsync(string userId, int recipeId)
+        {
+            await _userRepository.AddToFavoritesAsync(userId, recipeId);
+        }
+
+        public async Task RemoveFromFavoritesAsync(string userId, int recipeId)
+        {
+            await _userRepository.RemoveFromFavoritesAsync(userId, recipeId);
+        }
+
+        public async Task<IEnumerable<RecipeDto>> GetFavoriteRecipesAsync(string userId)
+        {
+            return await _userRepository.GetFavoriteRecipesAsync(userId);
+        }
 
     }
 }
