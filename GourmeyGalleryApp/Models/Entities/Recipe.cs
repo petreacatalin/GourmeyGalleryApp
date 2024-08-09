@@ -36,6 +36,43 @@ namespace GourmeyGalleryApp.Models.Entities
         public Instructions? Instructions { get; set; }
         public IngredientsTotal? IngredientsTotal { get; set; }
         public ICollection<Comment>? Comments { get; set; }
+        [NotMapped]
+        public double AverageRating
+        {
+            get
+            {
+                if (Comments == null || !Comments.Any())
+                    return 0;
+
+                var ratings = Comments
+                    .Where(c => c.Rating != null)
+                    .Select(c => c.Rating.RatingValue ?? 0);
+
+                if (!ratings.Any())
+                    return 0;
+
+                return ratings.Average();
+            }
+        }
+        [NotMapped]
+        public double RatingsNumber
+        {
+            get
+            {
+                if (Comments == null || !Comments.Any())
+                    return 0;
+
+                var ratings = Comments
+                    .Where(c => c.Rating != null)
+                    .Select(c => c.Rating.RatingValue ?? 0);
+
+                if (!ratings.Any())
+                    return 0;
+
+                return ratings.Count();
+            }
+        }
+
     }
 
 }

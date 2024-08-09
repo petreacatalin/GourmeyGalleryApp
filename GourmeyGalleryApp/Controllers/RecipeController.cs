@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Storage.Blobs;
+using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Services;
@@ -57,6 +58,18 @@ public class RecipeController : ControllerBase
         }
         var recipeMapped = _mapper.Map<RecipeDto>(recipe);
         return Ok(recipeMapped);
+    }
+
+    [HttpGet("ratings/{id}")]
+    public async Task<ActionResult<IEnumerable<RatingDto>>> GetRatingsByRecipeId(int id)
+    {
+        var recipes = await _recipeService.GetRatingsByRecipeId(id);
+        if (recipes == null)
+        {
+            return NotFound();
+        }
+        var recipesDto = _mapper.Map<IEnumerable<RatingDto>>(recipes);
+        return Ok(recipesDto);
     }
 
     [HttpPost]

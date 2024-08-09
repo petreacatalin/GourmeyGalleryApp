@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace GourmeyGalleryApp.Models.Entities
 {
@@ -9,7 +10,9 @@ namespace GourmeyGalleryApp.Models.Entities
         public int? RatingValue { get; set; }
         public string? UserId { get; set; }
         public int? RecipeId { get; set; }
+        [JsonIgnore]
         public ApplicationUser? User { get; set; }
+        [JsonIgnore]
         public Recipe? Recipe { get; set; }
     }
 }

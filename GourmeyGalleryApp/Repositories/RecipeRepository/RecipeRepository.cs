@@ -25,13 +25,14 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
 
         public async Task<List<Recipe>> GetAllRecipesWithDetailsAsync()
         {
+
             return await _context.Recipes
                 .Include(r => r.IngredientsTotal)
                     .ThenInclude(it => it.Ingredients)
                 .Include(r => r.Instructions)
                     .ThenInclude(i => i.Steps)
                 .Include(r => r.Comments)
-                //.Include(r => r.Reviews)
+                     .ThenInclude(rt => rt.Rating)
                 .ToListAsync();
         }
 
@@ -46,6 +47,13 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
            .Include(x=> x.NutritionFacts)
            .Include(x => x.InformationTime)
             .FirstOrDefaultAsync(r => r.Id == id);
+        }
+        public async Task<List<Rating>> GetRatingsByRecipeId(int id)
+        {
+            return await _context.Ratings.Where(x => x.RecipeId == id)
+                .Include(x=> x.User)
+                .Include(x=> x.Recipe)
+                .ToListAsync();
         }
 
 

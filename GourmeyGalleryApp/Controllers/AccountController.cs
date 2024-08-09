@@ -110,6 +110,7 @@ public class AccountController : ControllerBase
                 new(JwtRegisteredClaimNames.GivenName, user.LastName ?? ""),
                 new(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
                 new(JwtRegisteredClaimNames.NameId, user.Id ?? ""),
+                new(JwtRegisteredClaimNames.UniqueName, user.ProfilePictureUrl ?? ""),
                 new(JwtRegisteredClaimNames.Aud,
                 _configuration.GetSection("JwtConfig").GetSection("Audience").Value!),
                 new(JwtRegisteredClaimNames.Iss,

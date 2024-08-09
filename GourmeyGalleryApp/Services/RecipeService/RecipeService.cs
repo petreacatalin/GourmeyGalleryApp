@@ -34,6 +34,16 @@ namespace GourmeyGalleryApp.Services.RecipeService
             return _mapper.Map<Recipe>(recipe);
         }
 
+        public async Task<List<Rating>> GetRatingsByRecipeId(int id)
+        {
+            var recipe = await _recipeCustomRepository.GetRatingsByRecipeId(id);
+            if (recipe == null)
+            {
+                return null;
+            }
+            return _mapper.Map<List<Rating>>(recipe);
+        }
+
         public async Task AddRecipeAsync(Recipe recipe)
         {
             await _recipeCustomRepository.AddRecipeAsync(recipe);

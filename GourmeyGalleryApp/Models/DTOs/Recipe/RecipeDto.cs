@@ -1,5 +1,6 @@
 ﻿using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using static GourmeyGalleryApp.Utils.RecipeEnums;
 
@@ -36,7 +37,44 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         public InstructionsDto Instructions { get; set; } // Updated DTO
         public NutritionFactsDto? NutritionFacts { get; set; }
         public InformationTimeDto? InformationTime { get; set; }
-        public IFormFile? Image { get; set; } 
+        public IFormFile? Image { get; set; }
+        [NotMapped]
+        public double AverageRating
+        {
+            get
+            {
+                if (Comments == null || !Comments.Any())
+                    return 0;
+
+                var ratings = Comments
+                    .Where(c => c.Rating != null)
+                    .Select(c => c.Rating.RatingValue ?? 0);
+
+                if (!ratings.Any())
+                    return 0;
+
+                return ratings.Average();
+            }
+        }
+
+        [NotMapped]
+        public double RatingsNumber
+        {
+            get
+            {
+                if (Comments == null || !Comments.Any())
+                    return 0;
+
+                var ratings = Comments
+                    .Where(c => c.Rating != null)
+                    .Select(c => c.Rating.RatingValue ?? 0);
+
+                if (!ratings.Any())
+                    return 0;
+
+                return ratings.Count();
+            }
+        }
     }
 }
 
