@@ -36,6 +36,7 @@ namespace GourmeyGalleryApp.Models.Entities
         public Instructions? Instructions { get; set; }
         public IngredientsTotal? IngredientsTotal { get; set; }
         public ICollection<Comment>? Comments { get; set; }
+
         [NotMapped]
         public double AverageRating
         {

@@ -115,11 +115,11 @@ public class RecipeController : ControllerBase
                 recipe.NutritionFacts = _mapper.Map<NutritionFacts>(recipeDto.NutritionFacts);
             }
 
-            //// Handle file upload
-            //if (recipeDto.Image != null)
+            // Handle file upload
+            //if (recipeFile != null)
             //{
             //    var blobStorageService = new BlobStorageService(_configuration); // Consider injecting this service
-            //    var imageUrl = await blobStorageService.UploadFile(recipeDto.Image);
+            //    var imageUrl = await blobStorageService.UploadFile(recipeFile);
             //    recipe.ImageUrl = imageUrl; // Save the URL of the uploaded image
             //}
 
