@@ -1,6 +1,0 @@
-@GourmeyGalleryApp_HostAddress = http://localhost:5187
-
-GET {{GourmeyGalleryApp_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
