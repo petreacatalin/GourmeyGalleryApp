@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/GourmeyGalleryApp/Migrations/20240908220839_Azure.cs
+/GourmeyGalleryApp/Migrations/20240908220839_Azure.Designer.cs
+/GourmeyGalleryApp/Migrations/20240911113111_ReMigrate.cs
+/GourmeyGalleryApp/Migrations/20240911113111_ReMigrate.Designer.cs

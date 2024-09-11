@@ -22,10 +22,12 @@ using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.WebHost.UseUrls("http://*:80");
+
 // Add services to the container.
 builder.Services.AddDbContext<GourmetGalleryContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("AzureDefaultConnection")));
-//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//options.UseSqlServer(builder.Configuration.GetConnectionString("AzureDefaultConnection")));
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<GourmetGalleryContext>()
@@ -79,19 +81,26 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+           builder => builder.AllowAnyOrigin()
+                             .AllowAnyMethod()
+                             .AllowAnyHeader());
+});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigin", builder => builder
+//        .WithOrigins("http://localhost:4200")
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials());
+//});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", builder => builder
-        .WithOrigins("http://localhost:4200")
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials());
 });
 
 builder.Services.AddSwaggerGen(c =>
@@ -136,6 +145,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+//if(app.Environment.IsProduction())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
 else
 {
     app.UseExceptionHandler("/Home/Error");
@@ -144,9 +158,10 @@ else
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin");
-
 app.UseRouting();
+
+app.UseCors("AllowAll");
+//app.UseCors("AllowSpecificOrigin");
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 

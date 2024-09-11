@@ -1,0 +1,20 @@
+# version: '3.8'
+
+# services:
+#   frontend:
+#     image: gourmet-gallery-ui
+#     ports:
+#       - "8080:80"
+#     networks:
+#       - gourmet-gallery-network
+
+#   backend:
+#     image: gourmet-gallery-be
+#     ports:
+#       - "8081:80"  
+#     networks:
+#       - gourmet-gallery-network
+
+# networks:
+#   gourmet-gallery-network:
+#     driver: bridge

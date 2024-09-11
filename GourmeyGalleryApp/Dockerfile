@@ -1,22 +1,33 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+# Use the official .NET 8 SDK image as the build environment
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY GourmeyGalleryApp/GourmeyGalleryApp.csproj GourmeyGalleryApp/
-RUN dotnet restore "GourmeyGalleryApp/GourmeyGalleryApp.csproj"
-COPY . .
-WORKDIR "/src/GourmeyGalleryApp"
-RUN dotnet build "GourmeyGalleryApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "GourmeyGalleryApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+# Set the working directory
 WORKDIR /app
-COPY --from=publish /app/publish .
+
+# Copy the project file and restore dependencies
+COPY *.csproj ./
+RUN dotnet restore "./GourmeyGalleryApp.csproj"
+
+# Copy the rest of the application code
+COPY . ./
+
+# Build the application
+RUN dotnet build -c Release -o /app/build
+
+# Publish the application
+RUN dotnet publish -c Release -o /app/publish
+
+# Use the official .NET 8 runtime image for the runtime environment
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the published application from the build stage
+COPY --from=build /app/publish .
+
+# Set the entry point for the application
 ENTRYPOINT ["dotnet", "GourmeyGalleryApp.dll"]
+
+# Expose the port the app runs on
+EXPOSE 80
