@@ -11,6 +11,9 @@ namespace GourmeyGalleryApp.Models.Entities
         public string Title { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
+
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public MealType? MealType { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

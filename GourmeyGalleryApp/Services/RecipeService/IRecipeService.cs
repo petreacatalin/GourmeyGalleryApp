@@ -10,5 +10,6 @@ namespace GourmeyGalleryApp.Services.RecipeService
         Task AddRecipeAsync(Recipe recipe);
         Task UpdateRecipeAsync(Recipe recipe);
         Task DeleteRecipeAsync(int id);
+        Task<IEnumerable<Recipe>> GetRecipesByUserIdAsync(string userId);
     }
 }

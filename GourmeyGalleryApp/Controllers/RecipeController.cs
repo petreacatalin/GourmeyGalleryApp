@@ -123,6 +123,7 @@ public class RecipeController : ControllerBase
             //    recipe.ImageUrl = imageUrl; // Save the URL of the uploaded image
             //}
 
+            recipe.CreatedAt = DateTime.UtcNow;
             await _recipeService.AddRecipeAsync(recipe);
 
             var savedRecipe = await _recipeService.GetRecipeByIdAsync(recipe.Id);

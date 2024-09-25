@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
 using GourmeyGalleryApp.Services.EmailService;
+using GourmeyGalleryApp.Services.RecipeService;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -22,7 +23,7 @@ public class AccountController : ControllerBase
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
     private readonly BlobStorageService _blobStorageService;
-
+    private readonly IRecipeService _recipeService;
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
@@ -30,7 +31,8 @@ public class AccountController : ControllerBase
         IUserService userService,
         IMapper mapper,
         IEmailService emailService,
-        BlobStorageService blobStorageService)
+        BlobStorageService blobStorageService,
+        IRecipeService recipeService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -39,6 +41,7 @@ public class AccountController : ControllerBase
         _mapper = mapper;
         _emailService = emailService;
         _blobStorageService = blobStorageService;
+        _recipeService = recipeService;
     }
 
     [HttpPost("register")]
@@ -380,6 +383,16 @@ public class AccountController : ControllerBase
 
         var friendDtos = _mapper.Map<IEnumerable<ApplicationUserDto>>(friends);
         return Ok(friendDtos);
+    }
+
+    [HttpGet("user-recipes")]
+    public async Task<IActionResult> UserRecipes()
+    {
+        var userId = User.FindFirstValue("nameId");
+
+        var recipes = await _recipeService.GetRecipesByUserIdAsync(userId);
+
+        return Ok(recipes); 
     }
 
     [HttpPost("add-friend/{friendId}")]

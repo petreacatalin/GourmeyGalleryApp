@@ -1,4 +1,5 @@
-﻿using GourmeyGalleryApp.Models.DTOs.Comments;
+﻿using GourmeyGalleryApp.Models.DTOs.ApplicationUser;
+using GourmeyGalleryApp.Models.DTOs.Comments;
 using GourmeyGalleryApp.Models.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -15,6 +16,8 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         public int InstructionsId { get; set; }
         public string? Tags { get; set; }
         public string? ImageUrl { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public MealType? MealType { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -37,6 +40,7 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         public InstructionsDto? Instructions { get; set; } // Updated DTO
         public NutritionFactsDto? NutritionFacts { get; set; }
         public InformationTimeDto? InformationTime { get; set; }
+        public ApplicationUserDto? ApplicationUser { get; set; }
         [NotMapped]
         public double AverageRating
         {

@@ -33,6 +33,7 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                     .ThenInclude(i => i.Steps)
                 .Include(r => r.Comments)
                      .ThenInclude(rt => rt.Rating)
+                .Include(us => us.ApplicationUser)
                 .ToListAsync();
         }
 
@@ -46,6 +47,7 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
            .Include(r => r.Comments)
            .Include(x=> x.NutritionFacts)
            .Include(x => x.InformationTime)
+                .Include(us => us.ApplicationUser)
             .FirstOrDefaultAsync(r => r.Id == id);
         }
         public async Task<List<Rating>> GetRatingsByRecipeId(int id)
@@ -56,6 +58,12 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                 .ToListAsync();
         }
 
+        public async Task<List<Recipe>> GetRecipesByUserIdAsync(string userId)
+        {
+            return await _context.Recipes
+                                 .Where(r => r.ApplicationUserId == userId)  // Assuming you have a UserId property in Recipe
+                                 .ToListAsync();
+        }
 
         public async Task SaveChangesAsync()
         {

@@ -9,6 +9,8 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
         Task<Recipe> GetRecipeByIdAsync(int id);
         Task<List<Rating>> GetRatingsByRecipeId(int id);
         Task SaveChangesAsync();
+        Task<List<Recipe>> GetRecipesByUserIdAsync(string userId);
+
     }
 
 }

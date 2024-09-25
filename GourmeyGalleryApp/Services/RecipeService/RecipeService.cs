@@ -2,6 +2,7 @@
 using GourmeyGalleryApp.Interfaces;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Repositories.RecipeRepository;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace GourmeyGalleryApp.Services.RecipeService
@@ -42,6 +43,10 @@ namespace GourmeyGalleryApp.Services.RecipeService
                 return null;
             }
             return _mapper.Map<List<Rating>>(recipe);
+        }
+        public async Task<IEnumerable<Recipe>> GetRecipesByUserIdAsync(string userId)
+        {
+            return await _recipeCustomRepository.GetRecipesByUserIdAsync(userId);
         }
 
         public async Task AddRecipeAsync(Recipe recipe)
