@@ -179,4 +179,14 @@ public class RecipeController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
+    [HttpGet("popular")]
+    public async Task<ActionResult<List<RecipeDto>>> GetPopularRecipes(
+     [FromQuery] double ratingThreshold = 3.0,
+     [FromQuery] int ratingCountThreshold = 1,
+     [FromQuery] int limit = 10)
+    {
+        var popularRecipes = await _recipeService.GetPopularRecipesAsync(ratingThreshold, ratingCountThreshold, limit);
+        return Ok(popularRecipes);
+    }
 }

@@ -1,4 +1,6 @@
 ﻿using GourmetGallery.Infrastructure;
+using GourmeyGalleryApp.Models.DTOs.Comments;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,6 +66,49 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                                  .Where(r => r.ApplicationUserId == userId)  // Assuming you have a UserId property in Recipe
                                  .ToListAsync();
         }
+
+        public async Task<List<Recipe>> GetPopularRecipesAsync(double ratingThreshold, int ratingCountThreshold, int limit)
+        {
+            // Fetch recipes along with their comments
+            var recipes = await _context.Recipes
+                .Include(x => x.InformationTime)
+                .Include(r => r.Comments)
+                    .ThenInclude(c => c.Rating) 
+                .ToListAsync(); 
+
+            // Calculate average rating and number of ratings
+            var popularRecipes = recipes
+                .Select(r => new Recipe
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    Description = r.Description,
+                    ImageUrl = r.ImageUrl,
+                    CreatedAt = r.CreatedAt,
+                    UpdatedAt = r.UpdatedAt,
+                    InformationTime = r.InformationTime != null ? new InformationTime
+                    {
+                        Id = r.InformationTime.Id,
+                        PrepTime = r.InformationTime.PrepTime,
+                        CookTime = r.InformationTime.CookTime,
+                        StandTime = r.InformationTime.StandTime,
+                        TotalTime = r.InformationTime.TotalTime,
+                        Servings = r.InformationTime.Servings
+                    } : null,
+                    Comments = r.Comments.Select(c => new Comment
+                    {
+                        Rating = c.Rating
+                    }).ToList(),
+                })
+                .Where(r => r.AverageRating >= ratingThreshold && r.RatingsNumber >= ratingCountThreshold)
+                .OrderByDescending(r => r.AverageRating)
+                .ThenByDescending(r => r.RatingsNumber)
+                .Take(limit) // Limit the number of recipes returned
+                .ToList();
+
+            return popularRecipes;
+        }
+
 
         public async Task SaveChangesAsync()
         {

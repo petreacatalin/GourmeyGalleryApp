@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GourmeyGalleryApp.Interfaces;
+using GourmeyGalleryApp.Models.DTOs.Recipe;
 using GourmeyGalleryApp.Models.Entities;
 using GourmeyGalleryApp.Repositories.RecipeRepository;
 using Microsoft.EntityFrameworkCore;
@@ -91,6 +92,11 @@ namespace GourmeyGalleryApp.Services.RecipeService
                 _recipeRepository.Delete(recipe);
                 await _recipeRepository.SaveChangesAsync();  // Ensure SaveChanges is implemented in the Repository
             }
+        }
+
+        public async Task<List<Recipe>> GetPopularRecipesAsync(double ratingThreshold, int ratingCountThreshold, int limit)
+        {
+            return await _recipeCustomRepository.GetPopularRecipesAsync(ratingThreshold, ratingCountThreshold, limit);
         }
     }
 }

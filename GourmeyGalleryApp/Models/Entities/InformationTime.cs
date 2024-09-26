@@ -1,4 +1,6 @@
-﻿namespace GourmeyGalleryApp.Models.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GourmeyGalleryApp.Models.Entities
 {
     public class InformationTime
     {

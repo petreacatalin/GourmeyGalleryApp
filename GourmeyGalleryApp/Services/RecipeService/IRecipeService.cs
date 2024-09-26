@@ -1,4 +1,5 @@
-﻿using GourmeyGalleryApp.Models.Entities;
+﻿using GourmeyGalleryApp.Models.DTOs.Recipe;
+using GourmeyGalleryApp.Models.Entities;
 
 namespace GourmeyGalleryApp.Services.RecipeService
 {
@@ -11,5 +12,6 @@ namespace GourmeyGalleryApp.Services.RecipeService
         Task UpdateRecipeAsync(Recipe recipe);
         Task DeleteRecipeAsync(int id);
         Task<IEnumerable<Recipe>> GetRecipesByUserIdAsync(string userId);
+        Task<List<Recipe>> GetPopularRecipesAsync(double ratingThreshold, int ratingCountThreshold, int limit);
     }
 }
