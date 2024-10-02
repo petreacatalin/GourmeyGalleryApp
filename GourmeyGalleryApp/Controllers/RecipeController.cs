@@ -189,4 +189,12 @@ public class RecipeController : ControllerBase
         var popularRecipes = await _recipeService.GetPopularRecipesAsync(ratingThreshold, ratingCountThreshold, limit);
         return Ok(popularRecipes);
     }
+
+    [HttpGet("latest")]
+    public async Task<ActionResult<List<RecipeDto>>> GetLatestRecipesAsync([FromQuery] int limit)
+    {
+        var latestRecipes = await _recipeService.GetLatestRecipesAsync(limit);
+
+        return Ok(latestRecipes);
+    }
 }

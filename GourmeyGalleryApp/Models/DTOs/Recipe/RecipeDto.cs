@@ -16,8 +16,9 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         public int InstructionsId { get; set; }
         public string? Tags { get; set; }
         public string? ImageUrl { get; set; }
-        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
+        public RecipeStatus Status { get; set; }
+        public DateTime? CreatedAt { get; set; } 
+        public DateTime? UpdatedAt { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public MealType? MealType { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

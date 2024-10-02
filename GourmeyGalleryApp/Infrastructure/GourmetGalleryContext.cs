@@ -22,6 +22,8 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
     public DbSet<NutritionFacts> NutritionFacts { get; set; }
     public DbSet<InformationTime> InformationTimes { get; set; }
     public DbSet<UserFavoriteRecipe> UserFavoriteRecipes { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<RecipeCategory> RecipeCategories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -67,10 +69,10 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Rating>()
-            .HasOne(r => r.Recipe)
-            .WithMany()
-            .HasForeignKey(r => r.RecipeId)
-            .OnDelete(DeleteBehavior.Restrict);
+    .HasOne(r => r.Recipe)
+    .WithMany() // This can be changed to WithMany(r => r.Ratings) if you want to navigate back
+    .HasForeignKey(r => r.RecipeId)
+    .OnDelete(DeleteBehavior.Cascade); // Change to cascade for Recipe
 
         // Recipe to IngredientsTotal and Instructions
         modelBuilder.Entity<Recipe>()
@@ -158,6 +160,26 @@ public class GourmetGalleryContext : IdentityDbContext<ApplicationUser>
             .WithMany() // No navigation property in Recipe for favorites
             .HasForeignKey(uf => uf.RecipeId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Category>()
+        .HasOne(c => c.ParentCategory)
+        .WithMany(c => c.Subcategories)
+        .HasForeignKey(c => c.ParentCategoryId)
+        .OnDelete(DeleteBehavior.Restrict);  // Prevents cascading deletes
+
+        // Many-to-many relationship between Recipe and Category
+        modelBuilder.Entity<RecipeCategory>()
+            .HasKey(rc => new { rc.RecipeId, rc.CategoryId });
+
+        modelBuilder.Entity<RecipeCategory>()
+            .HasOne(rc => rc.Recipe)
+            .WithMany(r => r.RecipeCategories)
+            .HasForeignKey(rc => rc.RecipeId);
+
+        modelBuilder.Entity<RecipeCategory>()
+            .HasOne(rc => rc.Category)
+            .WithMany(c => c.RecipeCategories)
+            .HasForeignKey(rc => rc.CategoryId);
     }
 
 }

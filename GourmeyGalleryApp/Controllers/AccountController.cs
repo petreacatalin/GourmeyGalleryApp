@@ -91,7 +91,7 @@ public class AccountController : ControllerBase
             return Unauthorized(invalidResult);
         }
 
-        var token = GenerateJwtToken(user);
+        var token = await GenerateJwtToken(user);
         return Ok(new AuthResult()
         {
             Token = token,
@@ -100,60 +100,45 @@ public class AccountController : ControllerBase
         });
     }
 
-    private string GenerateJwtToken(ApplicationUser user)
+    private async Task<string> GenerateJwtToken(ApplicationUser user)
     {
-
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration.GetSection("JwtConfig").GetSection("Key").Value!);
 
-        List<Claim> claims =
-            [
-                new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
-                new(JwtRegisteredClaimNames.FamilyName, user.FirstName ?? ""),
-                new(JwtRegisteredClaimNames.GivenName, user.LastName ?? ""),
-                new(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
-                new(JwtRegisteredClaimNames.NameId, user.Id ?? ""),
-                new(JwtRegisteredClaimNames.UniqueName, user.ProfilePictureUrl ?? ""),
-                new(JwtRegisteredClaimNames.Aud,
-                _configuration.GetSection("JwtConfig").GetSection("Audience").Value!),
-                new(JwtRegisteredClaimNames.Iss,
-                _configuration.GetSection("JwtConfig").GetSection("Issuer").Value!),
+        // Retrieve user roles
+        var roles = await _userManager.GetRolesAsync(user); // Awaiting the task
 
-            ];
+        // Create claims including user roles
+        List<Claim> claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+        new Claim(JwtRegisteredClaimNames.FamilyName, user.FirstName ?? ""),
+        new Claim(JwtRegisteredClaimNames.GivenName, user.LastName ?? ""),
+        new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
+        new Claim(JwtRegisteredClaimNames.NameId, user.Id ?? ""),
+        new Claim(JwtRegisteredClaimNames.UniqueName, user.ProfilePictureUrl ?? ""),
+        new Claim(JwtRegisteredClaimNames.Aud, _configuration.GetSection("JwtConfig").GetSection("Audience").Value!),
+        new Claim(JwtRegisteredClaimNames.Iss, _configuration.GetSection("JwtConfig").GetSection("Issuer").Value!)
+    };
 
+        // Add role claims
+        foreach (var role in roles) // Iterate over the actual roles
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        // Create the token
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials
-            (new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256),
+            Expires = DateTime.UtcNow.AddHours(1), // Set your desired expiration time
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
-
         return tokenHandler.WriteToken(token);
-
-        #region JWT Comment
-        //    var claims = new[]
-        //    {
-        //    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-        //    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        //    new Claim(JwtRegisteredClaimNames.NameId, user.Id) // Ensure user ID is included
-        //};
-
-        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtConfig:Key"]));
-        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        //    var token = new JwtSecurityToken(
-        //        issuer: _configuration["JwtConfig:Issuer"],
-        //        audience: _configuration["JwtConfig:Audience"],
-        //        claims: claims,
-        //        expires: DateTime.UtcNow.AddDays(14), // Token expiration
-        //        signingCredentials: creds);
-
-        //    return new JwtSecurityTokenHandler().WriteToken(token);
-        #endregion
     }
+
 
 
     [HttpPost("forgot-password")]

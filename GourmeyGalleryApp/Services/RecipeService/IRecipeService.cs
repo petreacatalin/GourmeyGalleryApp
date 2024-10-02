@@ -13,5 +13,12 @@ namespace GourmeyGalleryApp.Services.RecipeService
         Task DeleteRecipeAsync(int id);
         Task<IEnumerable<Recipe>> GetRecipesByUserIdAsync(string userId);
         Task<List<Recipe>> GetPopularRecipesAsync(double ratingThreshold, int ratingCountThreshold, int limit);
+        Task<List<Recipe>> GetLatestRecipesAsync(int count);
+
+        Task<List<Recipe>> GetPendingRecipesAsync();
+        Task ApproveRecipeAsync(int recipeId);
+        Task RejectRecipeAsync(int recipeId);
+
+
     }
 }

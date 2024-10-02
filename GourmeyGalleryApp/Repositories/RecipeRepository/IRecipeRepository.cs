@@ -12,6 +12,9 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
         Task SaveChangesAsync();
         Task<List<Recipe>> GetRecipesByUserIdAsync(string userId);
         Task<List<Recipe>> GetPopularRecipesAsync(double ratingThreshold, int ratingCountThreshold, int limit);
+        Task<List<Recipe>> GetLatestRecipesAsync(int count);
+        Task<List<Recipe>> GetRecipesByStatusAsync(RecipeStatus status);
+        Task DeleteRecipeAsync(int recipeId);
 
     }
 

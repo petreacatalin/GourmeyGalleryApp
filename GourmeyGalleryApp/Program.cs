@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Azure;
+using GourmeyGalleryApp.Repositories.CategoryRepository;
+using GourmeyGalleryApp.Services.CategoryService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +52,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddSingleton<BlobStorageService>(sp =>
         new BlobStorageService(sp.GetRequiredService<IConfiguration>()));
 builder.Services.AddTransient<IEmailService, EmailService>();
@@ -76,9 +80,16 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
         ValidAudience = builder.Configuration["JwtConfig:Audience"],
-        ClockSkew = TimeSpan.Zero // Optional: To prevent clock skew issues
+        ClockSkew = TimeSpan.Zero, // Optional: To prevent clock skew issues
+        RoleClaimType = "role"
     };
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+});
+
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddCors(options =>
@@ -139,6 +150,12 @@ builder.Services.AddAzureClients(clientBuilder =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    await serviceProvider.InitializeRolesAsync(); // Initialize roles
+}
 
 if (app.Environment.IsDevelopment())
 {

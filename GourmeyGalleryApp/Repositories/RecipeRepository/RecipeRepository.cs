@@ -25,6 +25,33 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
 
         }
 
+        public async Task DeleteRecipeAsync(int recipeId)
+        {
+            // Get all ratings associated with the recipe
+            var ratings = await _context.Ratings
+                                        .Where(r => r.RecipeId == recipeId)
+                                        .ToListAsync();
+            var comments = await _context.Comments
+                                        .Where(r => r.RecipeId == recipeId)
+                                        .ToListAsync();
+            // Remove the ratings first
+            if (ratings.Any())
+            {
+                _context.Ratings.RemoveRange(ratings);
+            }
+            if (comments.Any())
+            {
+                _context.Comments.RemoveRange(comments);
+            }
+            // Now, remove the recipe
+            var recipe = await _context.Recipes.FindAsync(recipeId);
+            if (recipe != null)
+            {
+                _context.Recipes.Remove(recipe);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task<List<Recipe>> GetAllRecipesWithDetailsAsync()
         {
 
@@ -103,12 +130,55 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                 .Where(r => r.AverageRating >= ratingThreshold && r.RatingsNumber >= ratingCountThreshold)
                 .OrderByDescending(r => r.AverageRating)
                 .ThenByDescending(r => r.RatingsNumber)
-                .Take(limit) // Limit the number of recipes returned
+                .Take(limit)
                 .ToList();
 
             return popularRecipes;
         }
 
+        public async Task<List<Recipe>> GetLatestRecipesAsync(int count)
+        {
+            var latestRecipes = await _context.Recipes
+                .Include(x => x.InformationTime)
+                .Include(r => r.Comments)
+                    .ThenInclude(c => c.Rating)
+                .Select(r => new Recipe
+                     {
+                         Id = r.Id,
+                         Title = r.Title,
+                         Description = r.Description,
+                         ImageUrl = r.ImageUrl,
+                         CreatedAt = r.CreatedAt,
+                         UpdatedAt = r.UpdatedAt,
+                         Status = r.Status,
+                         InformationTime = r.InformationTime != null ? new InformationTime
+                         {
+                             Id = r.InformationTime.Id,
+                             PrepTime = r.InformationTime.PrepTime,
+                             CookTime = r.InformationTime.CookTime,
+                             StandTime = r.InformationTime.StandTime,
+                             TotalTime = r.InformationTime.TotalTime,
+                             Servings = r.InformationTime.Servings
+                         } : null,
+                         Comments = r.Comments.Select(c => new Comment
+                         {
+                             Rating = c.Rating
+                         }).ToList(),
+
+                     })
+                .Where(r => r.CreatedAt != null) 
+                .OrderByDescending(r => r.CreatedAt)  
+                .Take(100)  
+                .OrderBy(r => Guid.NewGuid())  
+                .Take(count)  
+                .ToListAsync();
+
+            return latestRecipes;
+        }
+        public async Task<List<Recipe>> GetRecipesByStatusAsync(RecipeStatus status)
+        {
+            return await _context.Recipes.Where(r => r.Status == status).ToListAsync();
+        }
 
         public async Task SaveChangesAsync()
         {

@@ -86,17 +86,50 @@ namespace GourmeyGalleryApp.Services.RecipeService
 
         public async Task DeleteRecipeAsync(int id)
         {
-            var recipe = await _recipeRepository.GetByIdAsync(id);
-            if (recipe != null)
-            {
-                _recipeRepository.Delete(recipe);
-                await _recipeRepository.SaveChangesAsync();  // Ensure SaveChanges is implemented in the Repository
-            }
+                      
+                await _recipeCustomRepository.DeleteRecipeAsync(id);             
+                await _recipeCustomRepository.SaveChangesAsync();  // Ensure SaveChanges is implemented in the Repository
+           
         }
 
         public async Task<List<Recipe>> GetPopularRecipesAsync(double ratingThreshold, int ratingCountThreshold, int limit)
         {
             return await _recipeCustomRepository.GetPopularRecipesAsync(ratingThreshold, ratingCountThreshold, limit);
         }
+
+        public async Task<List<Recipe>> GetLatestRecipesAsync(int count)
+        {
+            return await _recipeCustomRepository.GetLatestRecipesAsync(count);
+        }
+
+
+        #region AdminPanel
+        public async Task<List<Recipe>> GetPendingRecipesAsync()
+        {
+            return await _recipeCustomRepository.GetRecipesByStatusAsync(RecipeStatus.Pending);
+        }
+
+        public async Task ApproveRecipeAsync(int recipeId)
+        {
+            var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+            if (recipe != null)
+            {
+                recipe.Status = RecipeStatus.Approved;
+                recipe.UpdatedAt = DateTime.UtcNow;
+                await _recipeRepository.SaveChangesAsync();
+            }
+        }
+
+        public async Task RejectRecipeAsync(int recipeId)
+        {
+            var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+            if (recipe != null)
+            {
+                recipe.Status = RecipeStatus.Rejected;
+                recipe.UpdatedAt = DateTime.UtcNow;
+                await _recipeRepository.SaveChangesAsync();
+            }
+        }
+        #endregion
     }
 }

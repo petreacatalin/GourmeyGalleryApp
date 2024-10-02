@@ -7,7 +7,7 @@ namespace GourmeyGalleryApp.Models.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string ProfilePictureUrl { get; set; }
-        // Navigation property representing friends added by the user
+        public bool IsAdmin { get; set; } = false;
         public ICollection<Friend> FriendsAdded { get; set; }
 
         // Navigation property representing friends who added the user

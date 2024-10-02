@@ -1,9 +1,16 @@
 ﻿using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations.Schema;
 using static GourmeyGalleryApp.Utils.RecipeEnums;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GourmeyGalleryApp.Models.Entities
 {
+    public enum RecipeStatus
+    {
+        Pending = 0,
+        Approved = 1,
+        Rejected = 2,
+    }
 
     public class Recipe
     {
@@ -11,6 +18,7 @@ namespace GourmeyGalleryApp.Models.Entities
         public string Title { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
+        public RecipeStatus Status { get; set; } = RecipeStatus.Pending;
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 
@@ -39,6 +47,7 @@ namespace GourmeyGalleryApp.Models.Entities
         public Instructions? Instructions { get; set; }
         public IngredientsTotal? IngredientsTotal { get; set; }
         public ICollection<Comment>? Comments { get; set; }
+        public ICollection<RecipeCategory> RecipeCategories { get; set; } = new List<RecipeCategory>();
 
         [NotMapped]
         public double AverageRating
