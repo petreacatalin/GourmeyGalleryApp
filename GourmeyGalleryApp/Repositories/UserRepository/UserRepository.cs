@@ -91,6 +91,8 @@ namespace GourmetGallery.Infrastructure.Repositories
                 Title = recipe.Title,
                 Description = recipe.Description,
                 ImageUrl = recipe.ImageUrl,
+                Status = recipe.Status,
+                Slug = recipe.Slug
                 // Add other properties as needed
             });
 

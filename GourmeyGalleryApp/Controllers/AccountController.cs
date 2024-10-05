@@ -24,6 +24,7 @@ public class AccountController : ControllerBase
     private readonly IEmailService _emailService;
     private readonly BlobStorageService _blobStorageService;
     private readonly IRecipeService _recipeService;
+    private readonly RoleManager<IdentityRole> _roleManager; // Add this line
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
@@ -32,7 +33,8 @@ public class AccountController : ControllerBase
         IMapper mapper,
         IEmailService emailService,
         BlobStorageService blobStorageService,
-        IRecipeService recipeService)
+        IRecipeService recipeService,
+        RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -42,6 +44,7 @@ public class AccountController : ControllerBase
         _emailService = emailService;
         _blobStorageService = blobStorageService;
         _recipeService = recipeService;
+        _roleManager = roleManager;
     }
 
     [HttpPost("register")]
@@ -66,6 +69,18 @@ public class AccountController : ControllerBase
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors);
+        }
+
+        string roleToAssign = "User"; // Change this to the desired role or make it dynamic based on your requirement
+        if (!await _roleManager.RoleExistsAsync(roleToAssign))
+        {
+            return BadRequest($"Role '{roleToAssign}' does not exist.");
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, roleToAssign);
+        if (!roleResult.Succeeded)
+        {
+            return BadRequest(roleResult.Errors);
         }
 
         return Ok();

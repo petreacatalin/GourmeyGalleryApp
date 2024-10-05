@@ -20,9 +20,9 @@ namespace GourmeyGalleryApp.Services.RecipeService
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Recipe>> GetAllRecipesAsync()
+        public async Task<IEnumerable<Recipe>> GetAllRecipesAsync(bool? isAdmin)
         {
-            var recipes = await _recipeCustomRepository.GetAllRecipesWithDetailsAsync();
+            var recipes = await _recipeCustomRepository.GetAllRecipesWithDetailsAsync(isAdmin);
             return _mapper.Map<List<Recipe>>(recipes);
         }
 
@@ -52,6 +52,7 @@ namespace GourmeyGalleryApp.Services.RecipeService
 
         public async Task AddRecipeAsync(Recipe recipe)
         {
+            recipe.Slug = GenerateSlug(recipe.Title);
             await _recipeCustomRepository.AddRecipeAsync(recipe);
             await _recipeCustomRepository.SaveChangesAsync();
 
@@ -131,5 +132,10 @@ namespace GourmeyGalleryApp.Services.RecipeService
             }
         }
         #endregion
+
+        public string GenerateSlug(string title)
+        {
+            return title.ToLower().Replace(" ", "-").Replace(".", "").Replace("'", "");
+        }
     }
 }

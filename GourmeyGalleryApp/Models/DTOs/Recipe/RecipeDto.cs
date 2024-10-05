@@ -16,6 +16,7 @@ namespace GourmeyGalleryApp.Models.DTOs.Recipe
         public int InstructionsId { get; set; }
         public string? Tags { get; set; }
         public string? ImageUrl { get; set; }
+        public string? Slug { get; set; }
         public RecipeStatus Status { get; set; }
         public DateTime? CreatedAt { get; set; } 
         public DateTime? UpdatedAt { get; set; }

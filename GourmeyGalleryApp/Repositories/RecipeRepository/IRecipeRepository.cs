@@ -6,7 +6,7 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
     public interface IRecipeRepository
     {
         Task AddRecipeAsync(Recipe recipe);
-        Task<List<Recipe>> GetAllRecipesWithDetailsAsync();
+        Task<List<Recipe>> GetAllRecipesWithDetailsAsync(bool? isAdmin);
         Task<Recipe> GetRecipeByIdAsync(int id);
         Task<List<Rating>> GetRatingsByRecipeId(int id);
         Task SaveChangesAsync();

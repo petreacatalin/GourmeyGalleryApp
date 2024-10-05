@@ -52,17 +52,17 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
             }
         }
 
-        public async Task<List<Recipe>> GetAllRecipesWithDetailsAsync()
+        public async Task<List<Recipe>> GetAllRecipesWithDetailsAsync(bool? isAdmin)
         {
-
             return await _context.Recipes
                 .Include(r => r.IngredientsTotal)
                     .ThenInclude(it => it.Ingredients)
                 .Include(r => r.Instructions)
                     .ThenInclude(i => i.Steps)
                 .Include(r => r.Comments)
-                     .ThenInclude(rt => rt.Rating)
+                    .ThenInclude(rt => rt.Rating)
                 .Include(us => us.ApplicationUser)
+                .Where(st => isAdmin == true || st.Status == RecipeStatus.Approved) 
                 .ToListAsync();
         }
 
@@ -76,8 +76,8 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
            .Include(r => r.Comments)
            .Include(x=> x.NutritionFacts)
            .Include(x => x.InformationTime)
-                .Include(us => us.ApplicationUser)
-            .FirstOrDefaultAsync(r => r.Id == id);
+           .Include(us => us.ApplicationUser)              
+           .FirstOrDefaultAsync(r => r.Id == id);
         }
         public async Task<List<Rating>> GetRatingsByRecipeId(int id)
         {
@@ -113,6 +113,7 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                     ImageUrl = r.ImageUrl,
                     CreatedAt = r.CreatedAt,
                     UpdatedAt = r.UpdatedAt,
+                    Slug = r.Slug,
                     InformationTime = r.InformationTime != null ? new InformationTime
                     {
                         Id = r.InformationTime.Id,
@@ -151,7 +152,8 @@ namespace GourmeyGalleryApp.Repositories.RecipeRepository
                          CreatedAt = r.CreatedAt,
                          UpdatedAt = r.UpdatedAt,
                          Status = r.Status,
-                         InformationTime = r.InformationTime != null ? new InformationTime
+                         Slug = r.Slug,
+                    InformationTime = r.InformationTime != null ? new InformationTime
                          {
                              Id = r.InformationTime.Id,
                              PrepTime = r.InformationTime.PrepTime,

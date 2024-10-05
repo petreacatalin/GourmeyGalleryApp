@@ -41,9 +41,9 @@ public class RecipeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RecipeDto>>> GetRecipes()
+    public async Task<ActionResult<IEnumerable<RecipeDto>>> GetRecipes(bool? isAdmin)
     {
-        var recipes = await _recipeService.GetAllRecipesAsync();
+        var recipes = await _recipeService.GetAllRecipesAsync(isAdmin);
         var recipesDto = _mapper.Map<IEnumerable<RecipeDto>>(recipes);
         return Ok(recipesDto);
     }
@@ -58,6 +58,30 @@ public class RecipeController : ControllerBase
         }
         var recipeMapped = _mapper.Map<RecipeDto>(recipe);
         return Ok(recipeMapped);
+    }
+
+    [HttpGet("{id}/{slug}")]
+    public async Task<IActionResult> GetRecipeByIdAndSlug(int id, string? slug)
+    {
+        var recipe = await _recipeService.GetRecipeByIdAsync(id);
+        if (recipe == null)
+        {
+            return NotFound();
+        }
+
+        if (string.IsNullOrEmpty(slug) || recipe.Slug != slug)
+        {
+            // Redirect to the correct URL if the slug doesn't match
+            return RedirectToAction(nameof(GetRecipeByIdAndSlug), new { id = recipe.Id, slug = recipe.Slug });
+        }
+
+        var recipeMapped = _mapper.Map<RecipeDto>(recipe);
+        return Ok(recipeMapped);
+    }
+
+    private string GenerateSlug(string name)
+    {
+        return name.ToLower().Replace(" ", "-").Replace(",", "").Replace("&", "and");
     }
 
     [HttpGet("ratings/{id}")]
@@ -129,12 +153,11 @@ public class RecipeController : ControllerBase
             var savedRecipe = await _recipeService.GetRecipeByIdAsync(recipe.Id);
             var recipeDtoResult = _mapper.Map<RecipeDto>(savedRecipe);
 
-            return CreatedAtAction(nameof(GetRecipe),
-                new { id = savedRecipe.Id, applicationUserId = savedRecipe.ApplicationUserId }, recipeDtoResult);
+            return Ok(recipeDtoResult);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Internal server error.");
+            return StatusCode(500,ex.InnerException);
         }
     }
    
