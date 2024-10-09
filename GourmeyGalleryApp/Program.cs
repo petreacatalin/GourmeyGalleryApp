@@ -23,13 +23,18 @@ using GourmeyGalleryApp.Services.CategoryService;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 //builder.WebHost.UseUrls("http://*:80");
 
 // Add services to the container.
 builder.Services.AddDbContext<GourmetGalleryContext>(options =>
-//options.UseSqlServer(builder.Configuration.GetConnectionString("AzureDefaultConnection")));
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<GourmetGalleryContext>()
@@ -102,7 +107,7 @@ builder.Services.AddCors(options =>
 //builder.Services.AddCors(options =>
 //{
 //    options.AddPolicy("AllowSpecificOrigin", builder => builder
-//        .WithOrigins("http://localhost:4200")
+//        .WithOrigins("https://gourmetgallery.azurewebsites.net")
 //        .AllowAnyMethod()
 //        .AllowAnyHeader()
 //        .AllowCredentials());
@@ -116,7 +121,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "YourApp API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GourmetGallery API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
@@ -151,26 +156,22 @@ builder.Services.AddAzureClients(clientBuilder =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var serviceProvider = scope.ServiceProvider;
-    await serviceProvider.InitializeRolesAsync(); // Initialize roles
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var serviceProvider = scope.ServiceProvider;
+//    await serviceProvider.InitializeRolesAsync(); // Initialize roles
+//}
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();  
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-//if(app.Environment.IsProduction())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseHsts();  
 }
 
 app.UseHttpsRedirection();
